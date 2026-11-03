@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Explore Projects — The Unclaimed Project{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  
+  <!-- Page Header -->
+  <div class="text-center max-w-700 mx-auto mb-5">
+    <span class="hero-tagline">Open for Rescue &amp; Collaboration</span>
+    <h1 class="fs-2 mb-2">Explore Unfinished Projects</h1>
+    <p class="text-muted">
+      Discover ideas awaiting fresh hands. Filter by your craft or find creative materials ready to be reborn.
+    </p>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <div class="card border-0 p-4 rounded-4 shadow-sm mb-4" style="background-color: #FFFFFF; border: 1px solid var(--color-border) !important;">
+    <form method="GET" action="{{ url_for('explore') }}">
+      <div class="row g-3 align-items-center">
+        <!-- Search bar -->
+        <div class="col-lg-5 col-md-12">
+          <div class="input-group">
+            <span class="input-group-text bg-transparent border-end-0 border-warm text-muted">
+              <i class="bi bi-search"></i>
+            </span>
+            <input type="text" name="search" class="form-control form-control-warm border-start-0" placeholder="Search by title, materials, skills, location..." value="{{ search_query }}">
+          </div>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-lg-3 col-md-6">
+          <select name="status" class="form-select form-select-warm">
+            <option value="All" {% if not current_status or current_status == 'All' %}selected{% endif %}>All Statuses</option>
+            <option value="Available for Adoption" {% if current_status == 'Available for Adoption' %}selected{% endif %}>Available for Adoption</option>
+            <option value="In Collaboration" {% if current_status == 'In Collaboration' %}selected{% endif %}>In Collaboration</option>
+            <option value="Rescued / Completed" {% if current_status == 'Rescued / Completed' %}selected{% endif %}>Rescued / Completed</option>
+          </select>
+        </div>
+
+        <!-- Sort -->
+        <div class="col-lg-2 col-md-4">
+          <select name="sort" class="form-select form-select-warm">
+            <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+            <option value="completion" {% if current_sort == 'completion' %}selected{% endif %}>Highest Progress</option>
+            <option value="likes" {% if current_sort == 'likes' %}selected{% endif %}>Most Liked</option>
+          </select>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="col-lg-2 col-md-2">
+          <button type="submit" class="btn btn-sage w-100 justify-content-center">
+            Filter
+          </button>
+        </div>
+      </div>
+      
+      <!-- Retain category if selected -->
+      {% if current_category and current_category != 'All' %}
+        <input type="hidden" name="category" value="{{ current_category }}">
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Category Pills -->
+  <div class="category-filter-pills mb-4">
+    <a href="{{ url_for('explore', status=current_status, search=search_query, sort=current_sort) }}" class="filter-pill {% if not current_category or current_category == 'All' %}active{% endif %}">
+      All Categories
+    </a>
+    {% for cat in all_categories %}
+      <a href="{{ url_for('explore', category=cat, status=current_status, search=search_query, sort=current_sort) }}" class="filter-pill {% if current_category == cat %}active{% endif %}">
+        {{ cat }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- Result Counter -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <span class="small text-muted">Showing <strong>{{ total_count }}</strong> projects</span>
+    {% if current_category or current_status or search_query %}
+      <a href="{{ url_for('explore') }}" class="small text-terracotta">
+        <i class="bi bi-x-circle me-1"></i> Clear filters
+      </a>
+    {% endif %}
+  </div>
+
+  <!-- Projects Grid -->
+  {% if projects %}
+    <div class="row g-4">
+      {% for project in projects %}
+        <div class="col-lg-4 col-md-6">
+          <div class="project-card">
+            <div class="project-card-image-wrap">
+              <img src="{{ project.primary_image }}" alt="{{ project.title }}" loading="lazy">
+              <span class="category-badge">{{ project.category }}</span>
+              <span class="status-badge {% if project.status == 'Available for Adoption' %}status-available{% elif project.status == 'In Collaboration' %}status-collab{% else %}status-rescued{% endif %}">
+                {{ project.status }}
+              </span>
+            </div>
+            
+            <div class="project-card-body">
+              <h3 class="project-card-title">
+                <a href="{{ url_for('project_detail', project_id=project.id) }}">{{ project.title }}</a>
+              </h3>
+              <p class="project-card-desc">{{ project.short_description }}</p>
+
+              <!-- Progress bar -->
+              <div class="progress-warm-wrapper">
+                <div class="progress-header">
+                  <span>Progress</span>
+                  <span>{{ project.completion_percentage }}% complete</span>
+                </div>
+                <div class="progress-warm">
+                  <div class="progress-warm-fill" style="width: {{ project.completion_percentage }}%;"></div>
+                </div>
+              </div>
+
+              <!-- Location & Estimated time metadata -->
+              <div class="d-flex gap-3 small text-muted mb-3">
+                {% if project.location %}
+                  <span><i class="bi bi-geo-alt me-1"></i> {{ project.location }}</span>
+                {% endif %}
+                {% if project.estimated_time_to_finish %}
+                  <span><i class="bi bi-clock me-1"></i> {{ project.estimated_time_to_finish }}</span>
+                {% endif %}
+              </div>
+
+              <!-- Footer with creator info and view button -->
+              <div class="project-card-footer">
+                <div class="d-flex align-items-center gap-2">
+                  <img src="{{ project.creator.avatar_url or 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80' }}" class="creator-avatar-sm" alt="{{ project.creator.full_name }}">
+                  <a href="{{ url_for('user_profile', user_id=project.creator.id) }}" class="small text-muted text-decoration-none">
+                    {{ project.creator.full_name or project.creator.username }}
+                  </a>
+                </div>
+                <a href="{{ url_for('project_detail', project_id=project.id) }}" class="btn btn-sm btn-ghost-warm">
+                  View Details
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-5 bg-white rounded-4 border p-5">
+      <i class="bi bi-search fs-1 text-muted mb-3 d-block"></i>
+      <h3>No projects found</h3>
+      <p class="text-muted small">Try adjusting your search terms or category selection.</p>
+      <a href="{{ url_for('explore') }}" class="btn btn-outline-warm mt-2">Reset All Filters</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

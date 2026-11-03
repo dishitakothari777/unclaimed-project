@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Project Stories &amp; Scrapbook — The Unclaimed Project{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  
+  <div class="max-w-700 mx-auto text-center mb-5">
+    <span class="hero-tagline">Human Chronicles</span>
+    <h1 class="fs-2 mb-2">Project Stories</h1>
+    <p class="text-muted">
+      Every rescued project has an emotional heartbeat. Read the stories behind the knots, the circuit boards, and the timber rescued from oblivion.
+    </p>
+    {% if current_user %}
+      <button class="btn btn-sage mt-2" data-bs-toggle="modal" data-bs-target="#submitStoryModal">
+        <i class="bi bi-pen me-1"></i> Write a Community Story
+      </button>
+    {% endif %}
+  </div>
+
+  <div class="d-flex flex-column gap-5">
+    {% for story in stories %}
+      <div class="scrapbook-card">
+        <div class="washi-tape"></div>
+        <div class="row g-5 align-items-center">
+          
+          <div class="col-lg-5">
+            <div class="position-relative">
+              <div class="p-3 bg-white rounded-4 shadow-sm" style="transform: rotate(-1deg);">
+                <img src="{{ story.image_url }}" alt="{{ story.title }}" class="img-fluid rounded-3" style="width: 100%; max-height: 400px; object-fit: cover;">
+                <div class="mt-3 d-flex justify-content-between small text-muted px-1">
+                  <span>Conceived by: <strong>{{ story.original_creator_name }}</strong></span>
+                  <span>Rescued by: <strong>{{ story.rescuer_name }}</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-7">
+            <span class="badge rounded-pill px-3 py-2 text-uppercase fw-semibold mb-3" style="background-color: var(--color-dusty-peach); color: var(--color-deep-olive);">
+              {{ story.category }}
+            </span>
+            <h2 class="fs-2 mb-3">{{ story.title }}</h2>
+            <p class="lead fs-6 text-muted mb-3" style="line-height: 1.7;">
+              {{ story.excerpt }}
+            </p>
+
+            {% if story.quote %}
+              <blockquote class="scrapbook-quote">
+                "{{ story.quote }}"
+              </blockquote>
+            {% endif %}
+
+            <p class="text-dark small" style="line-height: 1.8;">
+              {{ story.full_story }}
+            </p>
+
+            <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+              <span class="small text-muted">
+                <i class="bi bi-calendar3 me-1"></i> Recorded in Community Archives
+              </span>
+              <button class="btn btn-sm btn-ghost-warm">
+                <i class="bi bi-heart me-1 text-danger"></i> {{ story.likes_count }} hearts
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+
+<!-- SUBMIT STORY MODAL -->
+{% if current_user %}
+<div class="modal fade" id="submitStoryModal" tabindex="-1" aria-labelledby="storyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4 border-0 p-3">
+      <div class="modal-header border-0 pb-0">
+        <h4 class="modal-title fs-5" id="storyModalLabel">
+          <i class="bi bi-pen text-terracotta me-1"></i> Share a Transformation Chronicle
+        </h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('stories') }}" enctype="multipart/form-data">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label form-label-warm">Story Title *</label>
+              <input type="text" name="title" class="form-control form-control-warm" placeholder="e.g. The Swedish Loom That Found Its Voice" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label form-label-warm">Original Creator Name *</label>
+              <input type="text" name="original_creator_name" class="form-control form-control-warm" placeholder="e.g. Martha &amp; Daughter" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label form-label-warm">Rescuer Name *</label>
+              <input type="text" name="rescuer_name" class="form-control form-control-warm" placeholder="e.g. Sophie K." required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label form-label-warm">Category *</label>
+              <select name="category" class="form-select form-select-warm" required>
+                {% for cat in all_categories %}
+                  <option value="{{ cat }}">{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label form-label-warm">Hero Photograph</label>
+              <input type="file" name="story_image_file" class="form-control form-control-warm mb-1" accept="image/*">
+              <input type="url" name="image_url" class="form-control form-control-warm small" placeholder="Or image URL...">
+            </div>
+            <div class="col-12">
+              <label class="form-label form-label-warm">Short Summary / Excerpt *</label>
+              <input type="text" name="excerpt" class="form-control form-control-warm" placeholder="A one or two sentence teaser for the scrapbook..." required>
+            </div>
+            <div class="col-12">
+              <label class="form-label form-label-warm">Key Heartfelt Quote</label>
+              <input type="text" name="quote" class="form-control form-control-warm" placeholder="e.g. A craft only dies when nobody is left to share the mistakes...">
+            </div>
+            <div class="col-12">
+              <label class="form-label form-label-warm">Full Narrative *</label>
+              <textarea name="full_story" class="form-control form-control-warm" rows="5" placeholder="Tell the complete emotional journey of how the project began, why it was paused, and how it was brought to life..." required></textarea>
+            </div>
+            <div class="col-12 mt-3">
+              <button type="submit" class="btn btn-sage w-100 py-3 justify-content-center">
+                Publish Story to Community Scrapbook
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

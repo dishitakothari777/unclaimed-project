@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Before &amp; After Transformations — The Unclaimed Project{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  
+  <div class="max-w-700 mx-auto text-center mb-5">
+    <span class="hero-tagline">Rescued &amp; Reborn</span>
+    <h1 class="fs-2 mb-2">Before &amp; After Gallery</h1>
+    <p class="text-muted">
+      Celebrate the quiet magic of renewal. See how water-damaged oak cabinets, discarded quilt blocks, and stalled camera restorations were brought back to life.
+    </p>
+    {% if current_user and user_eligible_projects %}
+      <button class="btn btn-sage mt-2" data-bs-toggle="modal" data-bs-target="#submitTransformationModal">
+        <i class="bi bi-camera me-1"></i> Submit a Transformation
+      </button>
+    {% endif %}
+  </div>
+
+  <!-- Category filter for gallery -->
+  <div class="category-filter-pills justify-content-center mb-5">
+    <a href="{{ url_for('gallery') }}" class="filter-pill {% if not selected_category %}active{% endif %}">
+      All Transformations
+    </a>
+    {% for cat in all_categories %}
+      <a href="{{ url_for('gallery', category=cat) }}" class="filter-pill {% if selected_category == cat %}active{% endif %}">
+        {{ cat }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- Side-by-side gallery showcases -->
+  <div class="row g-5">
+    {% for p in projects %}
+      <div class="col-12">
+        <div class="card p-4 p-md-5 rounded-4 border shadow-sm bg-white">
+          <div class="row g-4 align-items-center">
+            
+            <!-- Side-by-Side Images -->
+            <div class="col-lg-7">
+              <div class="ba-image-container">
+                <div class="ba-image-wrap" style="height: 280px;">
+                  <img src="{{ p.before_image }}" alt="Before: {{ p.title }}">
+                  <span class="ba-badge ba-badge-before">Original Abandoned</span>
+                </div>
+                <div class="ba-image-wrap" style="height: 280px;">
+                  <img src="{{ p.after_image }}" alt="After: {{ p.title }}">
+                  <span class="ba-badge ba-badge-after">Rescued &amp; Completed</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Transformation Story Content -->
+            <div class="col-lg-5">
+              <span class="badge rounded-pill bg-light text-dark border px-3 py-1 small mb-2 d-inline-block">
+                {{ p.category }}
+              </span>
+              <h3 class="fs-3 mb-2">{{ p.title }}</h3>
+              
+              <div class="p-3 rounded-3 mb-3" style="background-color: var(--color-surface-subtle); border-left: 3px solid var(--color-sage-green);">
+                <span class="small fw-semibold text-deep-olive d-block mb-1">Transformation Notes:</span>
+                <p class="small text-muted mb-0 fst-italic">
+                  "{{ p.transformation_story or p.short_description }}"
+                </p>
+              </div>
+
+              <div class="d-flex align-items-center justify-content-between pt-3 border-top small text-muted">
+                <div>
+                  <span>Original maker: <strong>{{ p.creator.full_name }}</strong></span><br>
+                  <span>Rescued by: <strong>{{ p.rescuer.full_name if p.rescuer else 'Community Partner' }}</strong></span>
+                </div>
+                <a href="{{ url_for('project_detail', project_id=p.id) }}" class="btn btn-sm btn-outline-warm">
+                  Full Project Story &rarr;
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+
+<!-- SUBMIT TRANSFORMATION MODAL -->
+{% if current_user and user_eligible_projects %}
+<div class="modal fade" id="submitTransformationModal" tabindex="-1" aria-labelledby="transformationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 p-3">
+      <div class="modal-header border-0 pb-0">
+        <h4 class="modal-title fs-5" id="transformationModalLabel">
+          <i class="bi bi-camera text-terracotta me-1"></i> Submit a Rescued Transformation
+        </h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('submit_before_after') }}" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label form-label-warm">Select Project *</label>
+            <select name="project_id" class="form-select form-select-warm" required>
+              {% for p in user_eligible_projects %}
+                <option value="{{ p.id }}">{{ p.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label form-label-warm">Completed "After" Photograph *</label>
+            <input type="file" name="after_image_file" class="form-control form-control-warm mb-2" accept="image/*">
+            <input type="url" name="after_image_url" class="form-control form-control-warm" placeholder="Or paste image URL...">
+          </div>
+          <div class="mb-3">
+            <label class="form-label form-label-warm">Original "Before" Photograph (Optional)</label>
+            <input type="file" name="before_image_file" class="form-control form-control-warm mb-2" accept="image/*">
+            <input type="url" name="before_image_url" class="form-control form-control-warm" placeholder="Or paste image URL...">
+          </div>
+          <div class="mb-3">
+            <label class="form-label form-label-warm">Transformation Story *</label>
+            <textarea name="transformation_story" class="form-control form-control-warm" rows="3" placeholder="Tell the community how you completed the piece..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-sage w-100 py-3 justify-content-center">
+            Publish to Transformation Gallery
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

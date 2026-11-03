@@ -1,0 +1,542 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} — The Unclaimed Project{% endblock %}
+
+{% block content %}
+<div class="container py-4 my-2">
+  
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-muted">Home</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('explore') }}" class="text-muted">Explore</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('explore', category=project.category) }}" class="text-muted">{{ project.category }}</a></li>
+      <li class="breadcrumb-item active text-dark" aria-current="page">{{ project.title[:35] }}...</li>
+    </ol>
+  </nav>
+
+  <div class="row g-5">
+    
+    <!-- Left Column: Primary Photograph, Project DNA & Story Content -->
+    <div class="col-lg-8">
+      
+      <!-- Primary Photo -->
+      <div class="position-relative mb-4">
+        <img src="{{ project.primary_image }}" class="detail-hero-img" alt="{{ project.title }}">
+        <span class="category-badge top-3 start-3">{{ project.category }}</span>
+        <span class="status-badge top-3 end-3 {% if project.status == 'Available for Adoption' %}status-available{% elif project.status == 'In Collaboration' %}status-collab{% else %}status-rescued{% endif %}">
+          {{ project.status }}
+        </span>
+      </div>
+
+      <!-- Title & Header Actions -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+        <div>
+          <h1 class="fs-2 mb-2">{{ project.title }}</h1>
+          <p class="lead text-muted fs-6 mb-1">{{ project.short_description }}</p>
+          <div class="d-flex flex-wrap gap-3 small text-muted mt-2">
+            <span><i class="bi bi-clock me-1 text-terracotta"></i> Listed {{ project.created_at.strftime('%B %d, %Y') }}</span>
+            {% if project.location %}
+              <span><i class="bi bi-geo-alt me-1 text-terracotta"></i> {{ project.location }}</span>
+            {% endif %}
+            <span><i class="bi bi-eye me-1 text-terracotta"></i> {{ project.views_count }} views</span>
+          </div>
+        </div>
+        
+        <!-- Action Buttons: Save & Like -->
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-warm btn-bookmark-project {% if is_bookmarked %}btn-terracotta{% endif %}" data-project-id="{{ project.id }}">
+            <i class="bi {% if is_bookmarked %}bi-bookmark-check-fill{% else %}bi-bookmark{% endif %} me-1"></i>
+            <span class="bm-text">{% if is_bookmarked %}Saved to Studio{% else %}Save Project{% endif %}</span>
+          </button>
+          <button class="btn btn-outline-warm btn-like-project" data-project-id="{{ project.id }}" title="Cheer on this project">
+            <i class="bi bi-heart-fill text-danger me-1"></i> 
+            <span class="like-count">{{ project.likes_count or 0 }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Completion Progress Bar -->
+      <div class="p-4 rounded-4 mb-4" style="background-color: var(--color-surface-subtle); border: 1px solid var(--color-border);">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="fw-semibold text-deep-olive"><i class="bi bi-pie-chart me-1"></i> Completion Level</span>
+          <span class="fw-bold fs-5 text-terracotta">{{ project.completion_percentage }}%</span>
+        </div>
+        <div class="progress-warm" style="height: 12px;">
+          <div class="progress-warm-fill" style="width: {{ project.completion_percentage }}%;"></div>
+        </div>
+        <div class="d-flex justify-content-between text-muted small mt-2">
+          <span>Started with intention</span>
+          <span>Awaiting a new beginning</span>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- PROJECT DNA SECTION (Crucial Platform Feature) -->
+      <!-- ============================================== -->
+      <div class="project-dna-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="project-dna-badge">
+            <i class="bi bi-fingerprint"></i> PROJECT DNA
+          </span>
+          <span class="small text-muted handwritten">The creative blueprint &amp; origins</span>
+        </div>
+
+        <div class="dna-step">
+          <div class="dna-icon-wrap"><i class="bi bi-lightbulb"></i></div>
+          <div>
+            <h5 class="fs-6 fw-bold mb-1">1. The Original Idea &amp; Inspiration</h5>
+            <p class="small text-muted mb-0">
+              {{ project.original_idea or project.full_description[:220] }}
+            </p>
+          </div>
+        </div>
+
+        <div class="dna-step">
+          <div class="dna-icon-wrap"><i class="bi bi-hammer"></i></div>
+          <div>
+            <h5 class="fs-6 fw-bold mb-1">2. Work Already Completed</h5>
+            <p class="small text-muted mb-0">
+              {{ project.work_completed_details or "Significant initial fabrication and layout completed by the creator." }}
+            </p>
+          </div>
+        </div>
+
+        <div class="dna-step">
+          <div class="dna-icon-wrap"><i class="bi bi-compass"></i></div>
+          <div>
+            <h5 class="fs-6 fw-bold mb-1">3. Remaining Work to Finish It</h5>
+            <p class="small text-muted mb-0">
+              {{ project.remaining_work_details or project.what_is_needed or "Final detailing, finishing coats, and assembly." }}
+            </p>
+          </div>
+        </div>
+
+        <div class="dna-step">
+          <div class="dna-icon-wrap"><i class="bi bi-box-seam"></i></div>
+          <div>
+            <h5 class="fs-6 fw-bold mb-1">4. Available Materials Included</h5>
+            <p class="small text-dark mb-0 fw-medium">
+              {{ project.materials_included or "Supplies and partial hardware included in adoption package." }}
+            </p>
+          </div>
+        </div>
+
+        <div class="dna-step">
+          <div class="dna-icon-wrap"><i class="bi bi-tools"></i></div>
+          <div>
+            <h5 class="fs-6 fw-bold mb-1">5. Skills Required</h5>
+            <p class="small text-muted mb-0">
+              <span class="badge bg-light text-dark border px-2 py-1">{{ project.skills_required or "General crafting and enthusiasm" }}</span>
+            </p>
+          </div>
+        </div>
+
+        {% if project.creator_message %}
+          <div class="p-3 rounded-3 mt-3 bg-white border border-light">
+            <span class="small fw-bold text-terracotta d-block mb-1">
+              <i class="bi bi-chat-quote me-1"></i> Note from Original Creator:
+            </span>
+            <p class="small text-muted mb-0 fst-italic">
+              "{{ project.creator_message }}"
+            </p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Narrative & Backstory Section -->
+      <div class="card p-4 p-md-5 rounded-4 border shadow-sm mb-4 bg-white">
+        <h3 class="fs-4 mb-3">The Backstory</h3>
+        <p class="text-muted mb-4" style="line-height: 1.8;">
+          {{ project.full_description }}
+        </p>
+
+        {% if project.why_abandoned %}
+          <div class="p-4 rounded-3 mb-4" style="background-color: #FAF5EE; border-left: 4px solid var(--color-terracotta);">
+            <h5 class="fs-6 text-terracotta fw-bold mb-1">
+              <i class="bi bi-pause-circle me-1"></i> Why the project was paused:
+            </h5>
+            <p class="small text-muted mb-0 fst-italic">
+              "{{ project.why_abandoned }}"
+            </p>
+          </div>
+        {% endif %}
+
+        <!-- Before & After Transformation if already completed -->
+        {% if project.before_image and project.after_image %}
+          <div class="mt-4 pt-4 border-top">
+            <h4 class="fs-5 mb-3">Transformation Showcase</h4>
+            <div class="row g-3">
+              <div class="col-6">
+                <div class="ba-image-wrap">
+                  <img src="{{ project.before_image }}" alt="Before">
+                  <span class="ba-badge ba-badge-before">Original</span>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="ba-image-wrap">
+                  <img src="{{ project.after_image }}" alt="After">
+                  <span class="ba-badge ba-badge-after">Completed</span>
+                </div>
+              </div>
+            </div>
+            {% if project.transformation_story %}
+              <p class="small text-muted mt-3 mb-0">{{ project.transformation_story }}</p>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Project Progress Updates Timeline -->
+      <div class="card p-4 p-md-5 rounded-4 border shadow-sm mb-4 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3 class="fs-4 mb-0">Project Progress Updates ({{ project.updates|length }})</h3>
+          {% if current_user and (current_user.id == project.creator_id or current_user.id == project.rescuer_id) %}
+            <button class="btn btn-sm btn-outline-warm" data-bs-toggle="modal" data-bs-target="#updateModal">
+              <i class="bi bi-plus-lg me-1"></i> Post Update
+            </button>
+          {% endif %}
+        </div>
+
+        {% if project.updates %}
+          <div class="d-flex flex-column gap-3 mb-2">
+            {% for up in project.updates %}
+              <div class="p-3 rounded-3 bg-light border">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <img src="{{ up.author.avatar_url or 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=60&q=80' }}" width="26" height="26" class="rounded-circle" alt="{{ up.author.full_name }}">
+                    <span class="small fw-semibold text-dark">{{ up.author.full_name }}</span>
+                  </div>
+                  <span class="small text-muted">{{ up.created_at.strftime('%b %d, %Y') }}</span>
+                </div>
+                <h6 class="fs-6 mb-1 text-deep-olive">{{ up.title }}</h6>
+                <p class="small text-muted mb-2">{{ up.content }}</p>
+                {% if up.image_url %}
+                  <img src="{{ up.image_url }}" alt="Update photo" class="rounded-3 mt-1" style="max-height: 180px; object-fit: cover;">
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="small text-muted mb-0">No progress updates published yet.</p>
+        {% endif %}
+      </div>
+
+      <!-- Community Reviews & Notes -->
+      <div class="card p-4 p-md-5 rounded-4 border shadow-sm mb-4 bg-white">
+        <h3 class="fs-4 mb-3">Community Reflections &amp; Notes ({{ project.reviews|length }})</h3>
+
+        {% if project.reviews %}
+          <div class="d-flex flex-column gap-3 mb-4">
+            {% for r in project.reviews %}
+              <div class="p-3 rounded-3 bg-light border">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <div class="d-flex align-items-center gap-2">
+                    <img src="{{ r.reviewer.avatar_url or 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=60&q=80' }}" class="rounded-circle" width="28" height="28" alt="{{ r.reviewer.full_name }}">
+                    <span class="fw-semibold small">{{ r.reviewer.full_name or r.reviewer.username }}</span>
+                  </div>
+                  <div class="text-warning small">
+                    {% for _ in range(r.rating) %}<i class="bi bi-star-fill" style="color: #E29578;"></i>{% endfor %}
+                  </div>
+                </div>
+                <p class="small text-muted mb-0 mt-1">{{ r.comment }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted small mb-4">No reviews or notes shared on this project yet. Be the first to leave an encouraging thought.</p>
+        {% endif %}
+
+        <!-- Add Review Form -->
+        {% if current_user %}
+          <form method="POST" action="{{ url_for('add_review', project_id=project.id) }}">
+            <h5 class="fs-6 mb-2">Leave a supportive note</h5>
+            <div class="row g-2 align-items-center mb-3">
+              <div class="col-auto">
+                <label for="rating" class="small text-muted">Rating:</label>
+              </div>
+              <div class="col-auto">
+                <select name="rating" id="rating" class="form-select form-select-sm">
+                  <option value="5">★★★★★ (5 Stars)</option>
+                  <option value="4">★★★★☆ (4 Stars)</option>
+                  <option value="3">★★★☆☆ (3 Stars)</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <textarea name="comment" class="form-control form-control-warm" rows="2" placeholder="Write an encouraging reflection about this project..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-sm btn-outline-warm">Post Note</button>
+          </form>
+        {% else %}
+          <div class="p-3 bg-light rounded-3 text-center">
+            <span class="small text-muted">Please <a href="{{ url_for('login') }}">sign in</a> to leave a review or words of encouragement.</span>
+          </div>
+        {% endif %}
+
+      </div>
+
+    </div>
+
+    <!-- Right Column: Maker Card, Adoption CTA, Transfer Details, Safety -->
+    <div class="col-lg-4">
+      
+      <!-- Maker Profile Card -->
+      <div class="card p-4 rounded-4 border shadow-sm mb-4 bg-white text-center">
+        <span class="hero-tagline mx-auto mb-3">Original Maker</span>
+        <img src="{{ project.creator.avatar_url or 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' }}" class="rounded-circle mx-auto mb-3 border border-2 border-white shadow-sm" width="80" height="80" alt="{{ project.creator.full_name }}" style="object-fit: cover;">
+        
+        <h4 class="fs-5 mb-1">
+          <a href="{{ url_for('user_profile', user_id=project.creator.id) }}" class="text-dark">{{ project.creator.full_name or project.creator.username }}</a>
+        </h4>
+        <p class="small text-muted mb-1">{{ project.creator.craft_specialty or 'Artisan' }}</p>
+        <p class="small text-muted mb-3"><i class="bi bi-geo-alt"></i> {{ project.location or project.creator.location or 'Global' }}</p>
+
+        {% if project.creator.bio %}
+          <p class="small text-muted mb-4 fst-italic px-2">"{{ project.creator.bio[:130] }}..."</p>
+        {% endif %}
+
+        <!-- Preferred Transfer Option Display -->
+        <div class="p-2 rounded-3 bg-light border mb-3 small text-start">
+          <span class="text-muted d-block small">Preferred Transfer:</span>
+          <span class="fw-semibold text-deep-olive"><i class="bi bi-arrow-left-right me-1 text-terracotta"></i> {{ project.preferred_transfer_type }}</span>
+        </div>
+
+        <!-- Adoption & Collaboration CTA Buttons -->
+        {% if current_user and current_user.id == project.creator_id %}
+          <div class="alert alert-info py-2 small mb-0">
+            <i class="bi bi-info-circle me-1"></i> You are the creator of this project listing.
+          </div>
+        {% elif user_has_applied %}
+          <div class="alert alert-success py-2 small mb-0">
+            <i class="bi bi-check-circle me-1"></i> You have applied to adopt this project!
+          </div>
+        {% elif project.status == 'Available for Adoption' %}
+          <button type="button" class="btn btn-sage w-100 py-3 mb-2 justify-content-center" data-bs-toggle="modal" data-bs-target="#adoptModal">
+            <i class="bi bi-heart-fill me-1"></i> Adopt This Project
+          </button>
+          
+          <button type="button" class="btn btn-outline-warm w-100 py-2 mb-2 justify-content-center" data-bs-toggle="modal" data-bs-target="#collabApplyModal">
+            <i class="bi bi-people me-1"></i> Request Collaboration
+          </button>
+          <span class="small text-muted d-block">Free to adopt &bull; Creator approval required</span>
+        {% else %}
+          <button class="btn btn-secondary w-100 py-3 mb-2 justify-content-center" disabled>
+            {{ project.status }}
+          </button>
+        {% endif %}
+
+      </div>
+
+      <!-- Quick Metadata Details -->
+      <div class="card p-4 rounded-4 border shadow-sm mb-4 bg-white">
+        <h5 class="fs-6 mb-3 fw-bold text-uppercase text-muted" style="letter-spacing: 0.05em;">Project History &amp; Specs</h5>
+        <ul class="list-unstyled small mb-0 d-flex flex-column gap-3">
+          <li class="d-flex justify-content-between">
+            <span class="text-muted"><i class="bi bi-tag me-1"></i> Category</span>
+            <span class="fw-semibold text-dark">{{ project.category }}</span>
+          </li>
+          <li class="d-flex justify-content-between">
+            <span class="text-muted"><i class="bi bi-clock-history me-1"></i> Est. Time to Finish</span>
+            <span class="fw-semibold text-dark">{{ project.estimated_time_to_finish or 'Flexible' }}</span>
+          </li>
+          <li class="d-flex justify-content-between">
+            <span class="text-muted"><i class="bi bi-pin-map me-1"></i> Location</span>
+            <span class="fw-semibold text-dark">{{ project.location or 'Ships / Local' }}</span>
+          </li>
+          <li class="d-flex justify-content-between">
+            <span class="text-muted"><i class="bi bi-tools me-1"></i> Skills Needed</span>
+            <span class="fw-semibold text-dark text-end" style="max-width: 160px;">{{ project.skills_required or 'Basic crafting' }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Report listing link -->
+      <div class="text-center">
+        <button type="button" class="btn btn-link text-muted small p-0 text-decoration-none" data-bs-toggle="modal" data-bs-target="#reportModal">
+          <i class="bi bi-flag me-1"></i> Report inappropriate listing
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Related Projects -->
+  {% if related_projects %}
+    <div class="mt-5 pt-4 border-top">
+      <h3 class="fs-4 mb-4">Other Projects in {{ project.category }}</h3>
+      <div class="row g-4">
+        {% for r in related_projects %}
+          <div class="col-md-4">
+            <div class="project-card">
+              <div class="project-card-image-wrap" style="height: 180px;">
+                <img src="{{ r.primary_image }}" alt="{{ r.title }}">
+                <span class="category-badge">{{ r.category }}</span>
+              </div>
+              <div class="project-card-body">
+                <h5 class="fs-6 mb-2">
+                  <a href="{{ url_for('project_detail', project_id=r.id) }}">{{ r.title }}</a>
+                </h5>
+                <p class="small text-muted mb-3">{{ r.short_description[:90] }}...</p>
+                <a href="{{ url_for('project_detail', project_id=r.id) }}" class="btn btn-sm btn-ghost-warm">View Project</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+
+
+<!-- ADOPTION APPLICATION MODAL -->
+<div class="modal fade" id="adoptModal" tabindex="-1" aria-labelledby="adoptModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 p-3">
+      <div class="modal-header border-0 pb-0">
+        <h4 class="modal-title fs-5" id="adoptModalLabel">
+          <i class="bi bi-heart text-terracotta me-1"></i> Adopt "{{ project.title }}"
+        </h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {% if current_user %}
+          <form method="POST" action="{{ url_for('submit_adoption_request', project_id=project.id) }}">
+            <p class="small text-muted mb-3">
+              Share a gentle note with <strong>{{ project.creator.full_name }}</strong>. Tell them why you love this idea and what your plan is for finishing it.
+            </p>
+            <div class="mb-3">
+              <label for="message" class="form-label form-label-warm">Why do you connect with this project? *</label>
+              <textarea class="form-control form-control-warm" id="message" name="message" rows="3" placeholder="e.g. I work with similar textiles and would love to bring this into our studio..." required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="plan_to_complete" class="form-label form-label-warm">Your plan / timeline to finish it</label>
+              <textarea class="form-control form-control-warm" id="plan_to_complete" name="plan_to_complete" rows="2" placeholder="e.g. I have 2 weeks open next month and all needed finishing tools..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-sage w-100 py-3 justify-content-center">
+              Send Adoption Request
+            </button>
+          </form>
+        {% else %}
+          <div class="text-center py-4">
+            <i class="bi bi-person-lock fs-1 text-muted mb-3 d-block"></i>
+            <h5>Please Sign In First</h5>
+            <p class="small text-muted mb-4">To protect our makers and their treasured materials, you must be a registered member to adopt projects.</p>
+            <a href="{{ url_for('login', next=request.url) }}" class="btn btn-sage w-100">Sign In to Continue</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- COLLABORATION REQUEST MODAL -->
+<div class="modal fade" id="collabApplyModal" tabindex="-1" aria-labelledby="collabApplyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 p-3">
+      <div class="modal-header border-0 pb-0">
+        <h4 class="modal-title fs-5" id="collabApplyModalLabel">
+          <i class="bi bi-people text-deep-olive me-1"></i> Request Collaboration
+        </h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {% if current_user %}
+          <form method="POST" action="{{ url_for('collaborations') }}">
+            <input type="hidden" name="project_id" value="{{ project.id }}">
+            <p class="small text-muted mb-3">
+              Propose working together with <strong>{{ project.creator.full_name }}</strong> to complete this project jointly.
+            </p>
+            <div class="mb-3">
+              <label class="form-label form-label-warm">Your Skills &amp; How You Can Help *</label>
+              <input type="text" name="skills_needed" class="form-control form-control-warm" placeholder="e.g. Wood turning, MicroPython firmware, Sashiko stitching" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label form-label-warm">Collaboration Scope / Message *</label>
+              <textarea name="description" class="form-control form-control-warm" rows="3" placeholder="Explain how you can divide the work or collaborate..." required></textarea>
+            </div>
+            <input type="hidden" name="role_title" value="Co-Creator / Collaborator">
+            <button type="submit" class="btn btn-outline-warm w-100 py-3 justify-content-center">
+              Send Collaboration Offer
+            </button>
+          </form>
+        {% else %}
+          <div class="text-center py-4">
+            <h5>Please Sign In First</h5>
+            <a href="{{ url_for('login', next=request.url) }}" class="btn btn-sage w-100">Sign In to Continue</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- POST PROGRESS UPDATE MODAL -->
+{% if current_user and (current_user.id == project.creator_id or current_user.id == project.rescuer_id) %}
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 p-3">
+      <div class="modal-header border-0 pb-0">
+        <h4 class="modal-title fs-5" id="updateModalLabel">Post Project Progress Update</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('add_project_update', project_id=project.id) }}" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label form-label-warm">Update Title *</label>
+            <input type="text" name="title" class="form-control form-control-warm" placeholder="e.g. Cut the remaining dovetails, Sourced matching linen" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label form-label-warm">Progress Details *</label>
+            <textarea name="content" class="form-control form-control-warm" rows="3" placeholder="Tell the community what steps were completed..." required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label form-label-warm">Photo (Upload or URL)</label>
+            <input type="file" name="update_image_file" class="form-control form-control-warm mb-2" accept="image/*">
+            <input type="url" name="update_image_url" class="form-control form-control-warm" placeholder="Or paste image URL...">
+          </div>
+          <button type="submit" class="btn btn-sage w-100 py-2">Publish Progress Update</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+<!-- REPORT LISTING MODAL -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 p-3">
+      <div class="modal-header border-0 pb-0">
+        <h4 class="modal-title fs-5" id="reportModalLabel">Report Listing</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('report_project', project_id=project.id) }}">
+          <p class="small text-muted mb-3">Our community values mutual trust and kind stewardship. Let us know if something seems wrong.</p>
+          <div class="mb-3">
+            <label for="reason" class="form-label form-label-warm">Reason for Report</label>
+            <select name="reason" id="reason" class="form-select form-select-warm">
+              <option value="Commercial advertising or spam">Commercial advertising or spam</option>
+              <option value="Inappropriate or offensive imagery">Inappropriate or offensive imagery</option>
+              <option value="Not an unfinished project">Not an unfinished project</option>
+              <option value="Copyright issue">Copyright issue</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="details" class="form-label form-label-warm">Additional Details (Optional)</label>
+            <textarea name="details" id="details" class="form-control form-control-warm" rows="2" placeholder="Provide any additional context..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-danger w-100 py-2">Submit Report</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

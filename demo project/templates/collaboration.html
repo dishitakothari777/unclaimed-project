@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Collaboration &amp; Skill Sharing — The Unclaimed Project{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  
+  <div class="max-w-700 mx-auto text-center mb-5">
+    <span class="hero-tagline">Better Together</span>
+    <h1 class="fs-2 mb-2">Creative Collaboration Calls</h1>
+    <p class="text-muted">
+      Don't want to give up your project completely? Invite a partner with complementary craft skills to help you cross the finish line together.
+    </p>
+    {% if current_user and user_projects %}
+      <button class="btn btn-sage mt-2" data-bs-toggle="modal" data-bs-target="#collabModal">
+        <i class="bi bi-people me-1"></i> Post a Collaboration Call
+      </button>
+    {% elif not current_user %}
+      <a href="{{ url_for('login') }}" class="btn btn-sage mt-2">Sign In to Post a Call</a>
+    {% endif %}
+  </div>
+
+  <!-- Open Collaboration Calls -->
+  <div class="row g-4">
+    {% for collab in collabs %}
+      <div class="col-lg-6">
+        <div class="card p-4 rounded-4 border shadow-sm h-100 bg-white">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <span class="badge rounded-pill bg-light text-dark border px-3 py-1 small mb-2 d-inline-block">
+                {{ collab.project.category }}
+              </span>
+              <h4 class="fs-5 mb-1">{{ collab.role_title }}</h4>
+              <span class="small text-muted">For project: </span>
+              <a href="{{ url_for('project_detail', project_id=collab.project.id) }}" class="fw-semibold text-terracotta small">
+                {{ collab.project.title }}
+              </a>
+            </div>
+            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+              {{ collab.status }}
+            </span>
+          </div>
+
+          <div class="p-3 rounded-3 bg-light border mb-3">
+            <span class="small fw-semibold text-deep-olive d-block mb-1">
+              <i class="bi bi-tools me-1"></i> Skills Desired:
+            </span>
+            <span class="small text-muted">{{ collab.skills_needed }}</span>
+          </div>
+
+          <p class="small text-muted flex-grow-1" style="line-height: 1.6;">
+            {{ collab.description }}
+          </p>
+
+          <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-3">
+            <div class="d-flex align-items-center gap-2">
+              <img src="{{ collab.project.creator.avatar_url or 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=60&q=80' }}" width="32" height="32" class="rounded-circle" alt="{{ collab.project.creator.full_name }}">
+              <span class="small text-muted">{{ collab.project.creator.full_name or collab.project.creator.username }}</span>
+            </div>
+            {% if current_user and current_user.id != collab.project.creator_id %}
+              <button class="btn btn-sm btn-outline-warm" data-bs-toggle="modal" data-bs-target="#applyModal-{{ collab.id }}">
+                Apply to Collaborate &rarr;
+              </button>
+            {% else %}
+              <a href="{{ url_for('project_detail', project_id=collab.project.id) }}" class="btn btn-sm btn-ghost-warm">
+                View Project
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Apply Modal for this specific collab -->
+      {% if current_user and current_user.id != collab.project.creator_id %}
+      <div class="modal fade" id="applyModal-{{ collab.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content rounded-4 border-0 p-3">
+            <div class="modal-header border-0 pb-0">
+              <h5 class="modal-title">Apply as {{ collab.role_title }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <form method="POST" action="{{ url_for('apply_to_collaboration', collab_id=collab.id) }}">
+                <p class="small text-muted mb-3">Pitch your skills and how you'd like to collaborate with <strong>{{ collab.project.creator.full_name }}</strong>.</p>
+                <div class="mb-3">
+                  <label class="form-label form-label-warm">Your Relevant Skills &amp; Tools *</label>
+                  <input type="text" name="skills_offered" class="form-control form-control-warm" placeholder="e.g. 5 years wood lathe experience, workshop in Vermont" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label form-label-warm">Proposal / Message *</label>
+                  <textarea name="message" class="form-control form-control-warm" rows="3" placeholder="Tell the creator how you can tackle this together..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-sage w-100 py-2">Submit Collaboration Pitch</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+</div>
+
+
+<!-- MODAL: POST A COLLABORATION CALL -->
+{% if current_user and user_projects %}
+<div class="modal fade" id="collabModal" tabindex="-1" aria-labelledby="collabModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 p-3">
+      <div class="modal-header border-0 pb-0">
+        <h4 class="modal-title fs-5" id="collabModalLabel">Post a Collaboration Call</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('collaborations') }}">
+          <div class="mb-3">
+            <label for="project_id" class="form-label form-label-warm">Select Your Project *</label>
+            <select name="project_id" id="project_id" class="form-select form-select-warm" required>
+              {% for p in user_projects %}
+                <option value="{{ p.id }}">{{ p.title }} ({{ p.category }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="role_title" class="form-label form-label-warm">Role / Collaborator Title *</label>
+            <input type="text" name="role_title" id="role_title" class="form-control form-control-warm" placeholder="e.g. Needlepoint Floss Expert, C++ Audio Coder" required>
+          </div>
+          <div class="mb-3">
+            <label for="skills_needed" class="form-label form-label-warm">Specific Skills Desired *</label>
+            <input type="text" name="skills_needed" id="skills_needed" class="form-control form-control-warm" placeholder="e.g. Japanese sashiko, wood carving, soldering" required>
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label form-label-warm">Collaboration Scope *</label>
+            <textarea name="description" id="description" class="form-control form-control-warm" rows="3" placeholder="Describe how you'd like to divide the work or meet up..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-sage w-100 py-3 justify-content-center">
+            Publish Collaboration Call
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

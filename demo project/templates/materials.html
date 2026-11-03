@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Surplus Craft Materials — The Unclaimed Project{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  
+  <!-- Header -->
+  <div class="max-w-700 mx-auto text-center mb-5">
+    <span class="hero-tagline">Prevent Creative Waste</span>
+    <h1 class="fs-2 mb-2">Material Sharing Exchange</h1>
+    <p class="text-muted">
+      Leftover linen yardage, kiln-dried timber off-cuts, vintage hardware, or spare electronic sensors. Rehome surplus supplies before they end up discarded.
+    </p>
+    {% if current_user %}
+      <button class="btn btn-sage mt-2" data-bs-toggle="modal" data-bs-target="#shareMaterialModal">
+        <i class="bi bi-box-seam me-1"></i> List Surplus Supplies
+      </button>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-sage mt-2">Sign In to List Materials</a>
+    {% endif %}
+  </div>
+
+  <!-- Search & Category Filters -->
+  <div class="card p-3 rounded-4 border mb-4 bg-white shadow-sm max-w-700 mx-auto">
+    <form method="GET" action="{{ url_for('materials') }}">
+      <div class="input-group">
+        <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-search"></i></span>
+        <input type="text" name="search" class="form-control form-control-warm border-start-0" placeholder="Search supplies by name, description, location..." value="{{ search_query or '' }}">
+        {% if current_category %}
+          <input type="hidden" name="category" value="{{ current_category }}">
+        {% endif %}
+        <button type="submit" class="btn btn-sage">Search</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Category Filter Pills -->
+  <div class="category-filter-pills justify-content-center mb-4">
+    <a href="{{ url_for('materials', search=search_query) }}" class="filter-pill {% if not current_category %}active{% endif %}">
+      All Supplies
+    </a>
+    <a href="{{ url_for('materials', category='Textiles & Fabric', search=search_query) }}" class="filter-pill {% if current_category == 'Textiles & Fabric' %}active{% endif %}">
+      Textiles &amp; Fabric
+    </a>
+    <a href="{{ url_for('materials', category='Wood & Timber', search=search_query) }}" class="filter-pill {% if current_category == 'Wood & Timber' %}active{% endif %}">
+      Wood &amp; Timber
+    </a>
+    <a href="{{ url_for('materials', category='Ceramics & Clay', search=search_query) }}" class="filter-pill {% if current_category == 'Ceramics & Clay' %}active{% endif %}">
+      Ceramics &amp; Clay
+    </a>
+    <a href="{{ url_for('materials', category='Hardware & Tools', search=search_query) }}" class="filter-pill {% if current_category == 'Hardware & Tools' %}active{% endif %}">
+      Hardware &amp; Tools
+    </a>
+    <a href="{{ url_for('materials', category='Electronics', search=search_query) }}" class="filter-pill {% if current_category == 'Electronics' %}active{% endif %}">
+      Electronics
+    </a>
+  </div>
+
+  <!-- Materials Grid -->
+  {% if materials %}
+    <div class="row g-4">
+      {% for mat in materials %}
+        <div class="col-lg-4 col-md-6">
+          <div class="material-card h-100 d-flex flex-column">
+            <div class="position-relative" style="height: 200px; overflow: hidden; background-color: var(--color-surface-subtle);">
+              <img src="{{ mat.image_url }}" alt="{{ mat.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+              <span class="category-badge top-3 start-3">{{ mat.category }}</span>
+              <span class="badge rounded-pill top-3 end-3 position-absolute {% if mat.is_claimed %}bg-secondary{% else %}bg-success{% endif %}">
+                {{ 'Claimed' if mat.is_claimed else 'Available' }}
+              </span>
+            </div>
+
+            <div class="p-4 d-flex flex-column flex-grow-1">
+              <h4 class="fs-5 mb-2">{{ mat.title }}</h4>
+              <p class="small text-muted mb-3 flex-grow-1" style="line-height: 1.6;">
+                {{ mat.description }}
+              </p>
+
+              <div class="d-flex flex-column gap-2 p-3 rounded-3 bg-light border mb-3 small">
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted"><i class="bi bi-box me-1"></i> Quantity:</span>
+                  <span class="fw-semibold">{{ mat.quantity }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted"><i class="bi bi-shield-check me-1"></i> Condition:</span>
+                  <span class="fw-semibold">{{ mat.condition }}</span>
+                </div>
+                {% if mat.location %}
+                  <div class="d-flex justify-content-between">
+                    <span class="text-muted"><i class="bi bi-geo-alt me-1"></i> Location:</span>
+                    <span class="fw-semibold">{{ mat.location }}</span>
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Footer: Donor & Claim Button -->
+              <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                <div class="d-flex align-items-center gap-2">
+                  <img src="{{ mat.donor.avatar_url or 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=60&q=80' }}" width="28" height="28" class="rounded-circle" alt="{{ mat.donor.full_name }}">
+                  <a href="{{ url_for('user_profile', user_id=mat.donor.id) }}" class="small text-muted text-decoration-none">{{ mat.donor.full_name or mat.donor.username }}</a>
+                </div>
+
+                {% if mat.is_claimed %}
+                  <span class="badge bg-light text-muted border py-2 px-3">Claimed</span>
+                {% elif current_user and current_user.id == mat.donor_id %}
+                  <span class="badge bg-light text-muted border py-2 px-3">Your Listing</span>
+                {% else %}
+                  <form method="POST" action="{{ url_for('claim_material', material_id=mat.id) }}">
+                    <button type="submit" class="btn btn-sm btn-terracotta">
+                      Request Material
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
+
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card p-5 rounded-4 border text-center bg-white">
+      <i class="bi bi-search fs-1 text-muted mb-2"></i>
+      <h5>No materials match your search</h5>
+      <p class="small text-muted mb-0">Try clearing your filters or check back soon.</p>
+    </div>
+  {% endif %}
+
+</div>
+
+
+<!-- MODAL: LIST SURPLUS MATERIALS -->
+<div class="modal fade" id="shareMaterialModal" tabindex="-1" aria-labelledby="shareMaterialModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 p-3">
+      <div class="modal-header border-0 pb-0">
+        <h4 class="modal-title fs-5" id="shareMaterialModalLabel">Share Surplus Materials</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('materials') }}" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="mat_title" class="form-label form-label-warm">Item Title *</label>
+            <input type="text" name="title" id="mat_title" class="form-control form-control-warm" placeholder="e.g. 5 Yards Raw Linen Fabric, Hardwood Cherry Offcuts" required>
+          </div>
+          <div class="mb-3">
+            <label for="mat_category" class="form-label form-label-warm">Material Category *</label>
+            <select name="category" id="mat_category" class="form-select form-select-warm" required>
+              <option value="Textiles & Fabric">Textiles &amp; Fabric</option>
+              <option value="Wood & Timber">Wood &amp; Timber</option>
+              <option value="Ceramics & Clay">Ceramics &amp; Clay</option>
+              <option value="Hardware & Tools">Hardware &amp; Tools</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Other">Other Craft Supplies</option>
+            </select>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label for="mat_quantity" class="form-label form-label-warm">Quantity *</label>
+              <input type="text" name="quantity" id="mat_quantity" class="form-control form-control-warm" placeholder="e.g. 2 bundles, 5 skeins" required>
+            </div>
+            <div class="col-6">
+              <label for="mat_condition" class="form-label form-label-warm">Condition</label>
+              <select name="condition" id="mat_condition" class="form-select form-select-warm">
+                <option value="Like New">Like New</option>
+                <option value="Gently Used">Gently Used</option>
+                <option value="Scraps / Offcuts">Scraps / Offcuts</option>
+                <option value="Vintage / Salvaged">Vintage / Salvaged</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="mat_location" class="form-label form-label-warm">Location</label>
+            <input type="text" name="location" id="mat_location" class="form-control form-control-warm" placeholder="e.g. Portland, OR or Ships worldwide">
+          </div>
+          <div class="mb-3">
+            <label class="form-label form-label-warm">Photograph (Upload or URL)</label>
+            <input type="file" name="material_image_file" class="form-control form-control-warm mb-1" accept="image/*">
+            <input type="url" name="image_url" class="form-control form-control-warm small" placeholder="Or paste image URL...">
+          </div>
+          <div class="mb-3">
+            <label for="mat_description" class="form-label form-label-warm">Description *</label>
+            <textarea name="description" id="mat_description" class="form-control form-control-warm" rows="3" placeholder="Tell other makers how much you have and what projects it suits..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-sage w-100 py-3 justify-content-center">
+            List Materials for Free
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

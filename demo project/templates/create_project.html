@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Share an Unfinished Project — The Unclaimed Project{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-md-2">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      
+      <div class="form-card">
+        
+        <!-- Header -->
+        <div class="text-center mb-5">
+          <span class="hero-tagline">
+            <i class="bi bi-heart me-1"></i> No Shame, Only Possibility
+          </span>
+          <h1 class="fs-2 mb-2">Share Your Unfinished Project</h1>
+          <p class="text-muted small max-w-600 mx-auto">
+            Life happens, priorities shift, and energy wanes. Listing your project gives it the second chance it deserves in the hands of someone thrilled to pick up where you left off.
+          </p>
+        </div>
+
+        <form method="POST" action="{{ url_for('create_project') }}" enctype="multipart/form-data">
+          
+          <div class="row g-4">
+            
+            <!-- Section 1: Basic Information -->
+            <div class="col-12">
+              <span class="badge rounded-pill bg-light text-dark border px-3 py-1 small fw-bold text-uppercase mb-2">Part 1: Overview</span>
+              <h4 class="fs-5 mb-3 text-deep-olive">Project Essentials</h4>
+            </div>
+
+            <!-- Title -->
+            <div class="col-12">
+              <label for="title" class="form-label form-label-warm">Project Title *</label>
+              <input type="text" class="form-control form-control-warm" id="title" name="title" placeholder="e.g. 1970s Leaded Stained Glass Hummingbird Panel" required>
+            </div>
+
+            <!-- Category & Transfer Type -->
+            <div class="col-md-6">
+              <label for="category" class="form-label form-label-warm">Category *</label>
+              <select class="form-select form-select-warm" id="category" name="category" required>
+                {% for cat in all_categories %}
+                  <option value="{{ cat }}">{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label for="preferred_transfer_type" class="form-label form-label-warm">Preferred Transfer Option *</label>
+              <select class="form-select form-select-warm" id="preferred_transfer_type" name="preferred_transfer_type" required>
+                <option value="Adopt my project">Adopt my project (Full Hand-off to Rescuer)</option>
+                <option value="Collaborate with me">Collaborate with me (Finish it together)</option>
+                <option value="Reuse my materials">Reuse my materials (Disassemble for parts)</option>
+              </select>
+            </div>
+
+            <!-- Short Description -->
+            <div class="col-12">
+              <label for="short_description" class="form-label form-label-warm">One-Sentence Summary *</label>
+              <input type="text" class="form-control form-control-warm" id="short_description" name="short_description" placeholder="A brief sentence describing what it is and its current condition..." maxlength="280" required>
+            </div>
+
+            <!-- Full Narrative Description -->
+            <div class="col-12">
+              <label for="full_description" class="form-label form-label-warm">The Backstory &amp; Narrative *</label>
+              <textarea class="form-control form-control-warm" id="full_description" name="full_description" rows="4" placeholder="How did this project begin? What kind of joy, craft, or curiosity was poured into it?" required></textarea>
+            </div>
+
+            <!-- Section 2: Why Abandoned & Needs -->
+            <div class="col-12 pt-3 border-top">
+              <span class="badge rounded-pill bg-light text-dark border px-3 py-1 small fw-bold text-uppercase mb-2">Part 2: Status &amp; Reason</span>
+              <h4 class="fs-5 mb-3 text-deep-olive">Why It Stalled &amp; What Is Needed</h4>
+            </div>
+
+            <!-- Why abandoned -->
+            <div class="col-12">
+              <label for="why_abandoned" class="form-label form-label-warm">Reason for Abandonment or Pause</label>
+              <textarea class="form-control form-control-warm" id="why_abandoned" name="why_abandoned" rows="2" placeholder="e.g. Moved apartments without a workshop, carpal tunnel flare-up, lost momentum..."></textarea>
+              <div class="form-text small text-muted">Being candid helps other makers understand where you left off.</div>
+            </div>
+
+            <!-- Materials Included & Skills Required -->
+            <div class="col-md-6">
+              <label for="materials_included" class="form-label form-label-warm">Available Materials Included</label>
+              <input type="text" class="form-control form-control-warm" id="materials_included" name="materials_included" placeholder="e.g. Pre-cut glass sheets, copper foil, flux">
+            </div>
+
+            <div class="col-md-6">
+              <label for="skills_required" class="form-label form-label-warm">Skills Required</label>
+              <input type="text" class="form-control form-control-warm" id="skills_required" name="skills_required" placeholder="e.g. Soldering, wood plane tuning, MicroPython">
+            </div>
+
+            <!-- Completion percentage & Estimated Time -->
+            <div class="col-md-6">
+              <label for="completion_percentage" class="form-label form-label-warm">Estimated Completion: <span id="comp_val" class="fw-bold text-terracotta">50%</span></label>
+              <input type="range" class="form-range" id="completion_percentage" name="completion_percentage" min="5" max="95" value="50" oninput="document.getElementById('comp_val').innerText = this.value + '%'">
+            </div>
+
+            <div class="col-md-6">
+              <label for="estimated_time" class="form-label form-label-warm">Estimated Time to Finish</label>
+              <input type="text" class="form-control form-control-warm" id="estimated_time" name="estimated_time" placeholder="e.g. 6 - 8 hours, A relaxing weekend">
+            </div>
+
+            <!-- Section 3: PROJECT DNA (Crucial Blueprint) -->
+            <div class="col-12 pt-3 border-top">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="project-dna-badge mb-0">PROJECT DNA</span>
+                <span class="small text-muted handwritten">Provide the creative blueprint</span>
+              </div>
+              <p class="small text-muted">These details help the next maker honor your original intention.</p>
+            </div>
+
+            <div class="col-12">
+              <label for="original_idea" class="form-label form-label-warm">1. Original Idea &amp; Concept</label>
+              <input type="text" class="form-control form-control-warm" id="original_idea" name="original_idea" placeholder="What was the original spark or dream behind this creation?">
+            </div>
+
+            <div class="col-md-6">
+              <label for="work_completed_details" class="form-label form-label-warm">2. Work Already Completed</label>
+              <textarea class="form-control form-control-warm" id="work_completed_details" name="work_completed_details" rows="2" placeholder="List key steps finished so far..."></textarea>
+            </div>
+
+            <div class="col-md-6">
+              <label for="remaining_work_details" class="form-label form-label-warm">3. Remaining Work to Finish</label>
+              <textarea class="form-control form-control-warm" id="remaining_work_details" name="remaining_work_details" rows="2" placeholder="List remaining steps needed..."></textarea>
+            </div>
+
+            <div class="col-12">
+              <label for="creator_message" class="form-label form-label-warm">4. Personal Message from You to the Rescuer</label>
+              <input type="text" class="form-control form-control-warm" id="creator_message" name="creator_message" placeholder="A kind note, encouragement, or specific care tips...">
+            </div>
+
+            <!-- Section 4: Photography Upload & Location -->
+            <div class="col-12 pt-3 border-top">
+              <span class="badge rounded-pill bg-light text-dark border px-3 py-1 small fw-bold text-uppercase mb-2">Part 4: Imagery &amp; Location</span>
+              <h4 class="fs-5 mb-3 text-deep-olive">Project Visuals</h4>
+            </div>
+
+            <!-- Location -->
+            <div class="col-md-6">
+              <label for="location" class="form-label form-label-warm">Location (City / Region)</label>
+              <input type="text" class="form-control form-control-warm" id="location" name="location" placeholder="e.g. Portland, OR or Ships worldwide">
+            </div>
+
+            <!-- Image File Upload (Pillow processing) -->
+            <div class="col-md-6">
+              <label for="primary_image_file" class="form-label form-label-warm">Upload Photograph</label>
+              <input type="file" class="form-control form-control-warm" id="primary_image_file" name="primary_image_file" accept="image/*">
+            </div>
+
+            <!-- Or Image URL -->
+            <div class="col-12">
+              <label for="primary_image_url" class="form-label form-label-warm">Or Paste an Image URL</label>
+              <input type="url" class="form-control form-control-warm" id="primary_image_url" name="primary_image_url" placeholder="https://images.unsplash.com/...">
+              <div class="form-text small text-muted">Upload an image or paste a URL. If omitted, a craft preset will be chosen automatically.</div>
+            </div>
+
+            <!-- Live Image Preview -->
+            <div class="col-12 text-center">
+              <img id="primary_image_preview" src="" alt="Preview" class="d-none rounded-3 shadow-sm border mt-2" style="max-height: 220px; object-fit: cover; width: 100%;">
+            </div>
+
+            <!-- Sample photo presets for quick testing -->
+            <div class="col-12">
+              <span class="small fw-semibold text-muted d-block mb-2">Or select a sample craft preset:</span>
+              <div class="d-flex gap-2 flex-wrap">
+                <button type="button" class="btn btn-sm btn-ghost-warm" onclick="document.getElementById('primary_image_url').value='https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=900&q=80'; document.getElementById('primary_image_preview').src='https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=900&q=80'; document.getElementById('primary_image_preview').classList.remove('d-none');">Textiles</button>
+                <button type="button" class="btn btn-sm btn-ghost-warm" onclick="document.getElementById('primary_image_url').value='https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=900&q=80'; document.getElementById('primary_image_preview').src='https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=900&q=80'; document.getElementById('primary_image_preview').classList.remove('d-none');">Woodworking</button>
+                <button type="button" class="btn btn-sm btn-ghost-warm" onclick="document.getElementById('primary_image_url').value='https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=900&q=80'; document.getElementById('primary_image_preview').src='https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=900&q=80'; document.getElementById('primary_image_preview').classList.remove('d-none');">Hardware</button>
+                <button type="button" class="btn btn-sm btn-ghost-warm" onclick="document.getElementById('primary_image_url').value='https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=900&q=80'; document.getElementById('primary_image_preview').src='https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=900&q=80'; document.getElementById('primary_image_preview').classList.remove('d-none');">Painting</button>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="col-12 mt-4 pt-2">
+              <button type="submit" class="btn btn-sage w-100 py-3 justify-content-center fs-6">
+                <i class="bi bi-box2-heart me-1"></i> Publish Project Listing
+              </button>
+            </div>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

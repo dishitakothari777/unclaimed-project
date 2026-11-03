@@ -1,0 +1,451 @@
+{% extends "base.html" %}
+
+{% block title %}The Unclaimed Project — Give unfinished ideas a second life{% endblock %}
+
+{% block content %}
+<!-- ============================================== -->
+<!-- 1. HERO SECTION                                -->
+<!-- ============================================== -->
+<section class="hero-editorial">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <div class="hero-pill-badge">
+          <i class="bi bi-sparkles text-terracotta"></i>
+          <span>A creative sanctuary for gentle beginnings</span>
+        </div>
+
+        <h1 class="hero-editorial-heading">
+          Not every unfinished thing is a <span class="editorial-italic">forgotten thing.</span>
+        </h1>
+
+        <p class="hero-editorial-sub">
+          Somewhere, someone has an unfinished idea. Somewhere else, someone is looking for exactly that.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3 mb-4">
+          <a {% if current_user %}href="{{ url_for('explore') }}"{% else %}href="{{ url_for('login', next=url_for('explore')) }}"{% endif %} class="btn btn-sage">
+            <i class="bi bi-compass"></i> Explore Projects
+          </a>
+          <a {% if current_user %}href="{{ url_for('create_project') }}"{% else %}href="{{ url_for('login', next=url_for('create_project')) }}"{% endif %} class="btn btn-terracotta">
+            <i class="bi bi-heart-fill"></i> Give Your Project a Second Life
+          </a>
+        </div>
+
+        <!-- Community Maker Proof -->
+        <div class="d-flex align-items-center gap-3 pt-2">
+          <div class="d-flex -space-x-2">
+            <img class="rounded-circle border border-2 border-white shadow-sm" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80" width="38" height="38" alt="Maker">
+            <img class="rounded-circle border border-2 border-white shadow-sm" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80" width="38" height="38" alt="Maker" style="margin-left: -10px;">
+            <img class="rounded-circle border border-2 border-white shadow-sm" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=80&q=80" width="38" height="38" alt="Maker" style="margin-left: -10px;">
+            <img class="rounded-circle border border-2 border-white shadow-sm" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=80&q=80" width="38" height="38" alt="Maker" style="margin-left: -10px;">
+          </div>
+          <span class="small text-muted">Joined by <strong>500+ makers</strong> rehoming dreams, timber &amp; craft.</span>
+        </div>
+      </div>
+
+      <!-- Hero Visual Composition: Modern Editorial Card Grid -->
+      <div class="col-lg-6">
+        <div class="hero-showcase-box">
+          <div class="hero-showcase-card primary-card shadow-soft">
+            <img src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=700&q=80" alt="Botanical Denim Stitches" class="img-fluid rounded-3">
+            <div class="hero-card-meta mt-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge bg-sage-subtle text-deep-olive fw-semibold px-2 py-1">Fashion &amp; DIY</span>
+                <span class="small text-muted fw-bold">45% Complete</span>
+              </div>
+              <h5 class="font-heading mb-1 text-deep-olive">Denim Fern Hand Embroidery</h5>
+              <p class="small text-muted mb-0">Started with Japanese sashiko thread, looking for an embroidery enthusiast.</p>
+            </div>
+          </div>
+          
+          <div class="hero-showcase-card secondary-card shadow-subtle d-none d-sm-flex align-items-center gap-3">
+            <img src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=160&q=80" alt="Black Walnut Slab" class="rounded-2" width="70" height="70" style="object-fit: cover;">
+            <div>
+              <span class="caption-label text-terracotta d-block">Adopted Yesterday</span>
+              <div class="fw-semibold text-deep-olive small">Pennsylvania Walnut Coffee Table</div>
+              <span class="small text-muted">Transferred to woodworker in Portland</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================== -->
+<!-- 2. PROJECT IMPACT COUNTER                      -->
+<!-- ============================================== -->
+<section class="py-4">
+  <div class="container">
+    <div class="impact-editorial-container reveal-on-scroll">
+      <div class="text-center max-w-700 mx-auto mb-4">
+        <span class="caption-label d-block mb-1">Live Community Vitality</span>
+        <h3 class="fs-4 font-heading mb-1 text-deep-olive">Our Collective Care in Numbers</h3>
+        <p class="text-muted small mb-0">Dynamic metrics calculated in real-time directly from our database records.</p>
+      </div>
+
+      <div class="row g-4 justify-content-center">
+        <!-- Stat 1: Rescued -->
+        <div class="col-md-4 col-sm-6">
+          <div class="stat-editorial-card">
+            <div class="stat-counter-number" data-target="{{ impact_stats.rescued_count }}">
+              {{ impact_stats.rescued_count }}
+            </div>
+            <div class="stat-counter-label">Total Projects Rescued</div>
+            <div class="stat-counter-sub">Adopted from drawers, shelves &amp; paused studios</div>
+          </div>
+        </div>
+
+        <!-- Stat 2: Materials -->
+        <div class="col-md-4 col-sm-6">
+          <div class="stat-editorial-card">
+            <div class="stat-counter-number" data-target="{{ impact_stats.materials_count }}">
+              {{ impact_stats.materials_count }}
+            </div>
+            <div class="stat-counter-label">Materials Reused</div>
+            <div class="stat-counter-sub">Timber cuts, linen cones, hardware &amp; parts spared</div>
+          </div>
+        </div>
+
+        <!-- Stat 3: Completed -->
+        <div class="col-md-4 col-sm-6">
+          <div class="stat-editorial-card">
+            <div class="stat-counter-number" data-target="{{ impact_stats.completed_count }}">
+              {{ impact_stats.completed_count }}
+            </div>
+            <div class="stat-counter-label">Projects Completed</div>
+            <div class="stat-counter-sub">Brought to full life through communal hands</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================== -->
+<!-- 3. HOW IT WORKS                                -->
+<!-- ============================================== -->
+<section class="py-5" id="how-it-works">
+  <div class="container py-4">
+    <div class="text-center max-w-700 mx-auto mb-5 reveal-on-scroll">
+      <span class="caption-label d-block mb-2 text-terracotta">A Gentle, Respectful Process</span>
+      <h2 class="fs-2 font-heading mb-2">How The Unclaimed Project Works</h2>
+      <p class="text-muted">A thoughtful bridge connecting what was paused with the energy, tools and passion to see it through.</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4 reveal-on-scroll">
+        <div class="step-editorial-card">
+          <div class="step-editorial-number">1</div>
+          <span class="caption-label text-terracotta d-block mb-1">Step One</span>
+          <h4 class="fs-4 font-heading mb-2 text-deep-olive">Share your unfinished project</h4>
+          <p class="text-muted small mb-0" style="line-height: 1.7;">
+            Upload your paused creation or surplus craft materials. Tell the honest backstory: why you started, what was accomplished, and what supplies are included.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4 reveal-on-scroll">
+        <div class="step-editorial-card">
+          <div class="step-editorial-number" style="background-color: var(--color-dusty-peach); color: var(--color-deep-olive);">2</div>
+          <span class="caption-label text-terracotta d-block mb-1">Step Two</span>
+          <h4 class="fs-4 font-heading mb-2 text-deep-olive">Someone discovers and adopts it</h4>
+          <p class="text-muted small mb-0" style="line-height: 1.7;">
+            A fellow maker browsing through categories connects with your idea. They submit an adoption proposal sharing their vision, tools, and timeline to complete it.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4 reveal-on-scroll">
+        <div class="step-editorial-card">
+          <div class="step-editorial-number" style="background-color: var(--color-sage-green); color: #212C1E;">3</div>
+          <span class="caption-label text-terracotta d-block mb-1">Step Three</span>
+          <h4 class="fs-4 font-heading mb-2 text-deep-olive">The project gets a new beginning</h4>
+          <p class="text-muted small mb-0" style="line-height: 1.7;">
+            Through gentle adoption or joint collaboration, the unfinished project is completed and recorded in our permanent community archives.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================== -->
+<!-- 4. EXPLORE PROJECTS (PREVIEW CARDS)            -->
+<!-- ============================================== -->
+<section class="py-5" style="background-color: #FAF8F5;">
+  <div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 reveal-on-scroll">
+      <div>
+        <span class="caption-label d-block mb-1 text-terracotta">Curated From Our Community</span>
+        <h2 class="fs-2 font-heading mb-1">Explore Unfinished Projects</h2>
+        <p class="text-muted small mb-0">Browse through creative works waiting for an eager pair of hands.</p>
+      </div>
+      <div class="mt-3 mt-md-0">
+        <a {% if current_user %}href="{{ url_for('explore') }}"{% else %}href="{{ url_for('login', next=url_for('explore')) }}"{% endif %} class="btn btn-outline-warm">
+          View All Projects <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Category Filter Quick Access -->
+    <div class="category-filter-pills mb-4">
+      <a {% if current_user %}href="{{ url_for('explore') }}"{% else %}href="{{ url_for('login', next=url_for('explore')) }}"{% endif %} class="filter-pill active">All Categories</a>
+      {% for cat in all_categories %}
+        <a {% if current_user %}href="{{ url_for('explore', category=cat) }}"{% else %}href="{{ url_for('login', next=url_for('explore', category=cat)) }}"{% endif %} class="filter-pill">{{ cat }}</a>
+      {% endfor %}
+    </div>
+
+    <!-- Projects Grid -->
+    <div class="row g-4">
+      {% for project in featured_projects %}
+        <div class="col-lg-4 col-md-6 reveal-on-scroll">
+          <div class="project-card">
+            <div class="project-card-image-wrap">
+              <img src="{{ project.primary_image }}" alt="{{ project.title }}" loading="lazy">
+              <span class="category-badge">{{ project.category }}</span>
+              <span class="status-badge {% if project.status == 'Available for Adoption' %}status-available{% elif project.status == 'In Collaboration' %}status-collab{% else %}status-rescued{% endif %}">
+                {{ project.status }}
+              </span>
+            </div>
+            
+            <div class="project-card-body">
+              <h3 class="project-card-title">
+                <a {% if current_user %}href="{{ url_for('project_detail', project_id=project.id) }}"{% else %}href="{{ url_for('login', next=url_for('project_detail', project_id=project.id)) }}"{% endif %}>
+                  {{ project.title }}
+                </a>
+              </h3>
+              <p class="project-card-desc">{{ project.short_description }}</p>
+
+              <!-- Progress bar -->
+              <div class="progress-warm-wrapper">
+                <div class="progress-header">
+                  <span>Completion</span>
+                  <span>{{ project.completion_percentage }}% complete</span>
+                </div>
+                <div class="progress-warm">
+                  <div class="progress-warm-fill" style="width: {{ project.completion_percentage }}%;"></div>
+                </div>
+              </div>
+
+              <!-- Card Footer -->
+              <div class="project-card-footer">
+                <div class="d-flex align-items-center gap-2">
+                  <img src="{{ project.creator.avatar_url or 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80' }}" class="creator-avatar-sm" alt="{{ project.creator.full_name }}">
+                  <span class="small text-muted">{{ project.creator.full_name or project.creator.username }}</span>
+                </div>
+                <a {% if current_user %}href="{{ url_for('project_detail', project_id=project.id) }}"{% else %}href="{{ url_for('login', next=url_for('project_detail', project_id=project.id)) }}"{% endif %} class="btn btn-sm btn-ghost-warm">
+                  {% if current_user %}View Project{% else %}Sign in to Adopt{% endif %}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================== -->
+<!-- 5. ABOUT THE PROJECT (MISSION & ETHOS)         -->
+<!-- ============================================== -->
+<section class="py-5" id="about">
+  <div class="container py-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="caption-label text-terracotta d-block mb-2">Our Philosophy</span>
+        <h2 class="fs-2 font-heading mb-3 text-deep-olive">
+          "Give unfinished ideas a second life."
+        </h2>
+        <p class="text-muted lead fs-6 mb-4" style="line-height: 1.8;">
+          The Unclaimed Project is a creative community platform where people can share their abandoned or unfinished projects so that others can adopt them, collaborate on them, or reuse the materials.
+        </p>
+        <p class="text-muted small mb-4" style="line-height: 1.8;">
+          Every creative maker knows the feeling: life changes, interests shift, or technical roadblocks arise, leaving a half-knitted sweater, an unassembled synth, or a carved walnut tabletop tucked into a closet. Our purpose is to prevent creative ideas and useful materials from going to waste by connecting people who have unfinished projects with people who want to continue them.
+        </p>
+
+        <div class="row g-3 pt-2">
+          <div class="col-sm-6">
+            <div class="d-flex align-items-start gap-3">
+              <div class="p-2 rounded-circle bg-sage-subtle text-deep-olive fs-5">
+                <i class="bi bi-recycle"></i>
+              </div>
+              <div>
+                <h6 class="font-heading mb-1 text-deep-olive">Zero Creative Waste</h6>
+                <p class="small text-muted mb-0">Reclaim quality materials, wood, fabric and hardware before they are discarded.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="d-flex align-items-start gap-3">
+              <div class="p-2 rounded-circle bg-peach-subtle text-terracotta fs-5">
+                <i class="bi bi-people"></i>
+              </div>
+              <div>
+                <h6 class="font-heading mb-1 text-deep-olive">Gentle Handover</h6>
+                <p class="small text-muted mb-0">Project DNA preserves the original backstory and hopes of the original maker.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="p-4 p-md-5 rounded-4 bg-white shadow-soft border border-light">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="brand-icon" style="background-color: var(--color-sage-green); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #212C1E;">🌱</span>
+            <span class="caption-label text-deep-olive">Community Manifesto</span>
+          </div>
+          <blockquote class="font-heading fs-4 text-deep-olive mb-3" style="font-style: italic; line-height: 1.4;">
+            "We believe that starting something takes bravery, and pausing it is natural. Letting someone else finish it is an act of generosity."
+          </blockquote>
+          <div class="pt-3 border-top d-flex justify-content-between align-items-center small text-muted">
+            <span>Written with care for makers everywhere</span>
+            <span class="fw-semibold text-terracotta">— The Unclaimed Circle</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================== -->
+<!-- 6. BEFORE & AFTER SHOWCASE                     -->
+<!-- ============================================== -->
+<section class="py-5" style="background-color: #FAF8F5;">
+  <div class="container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 reveal-on-scroll">
+      <div>
+        <span class="caption-label d-block mb-1 text-terracotta">Transformations &amp; Renewals</span>
+        <h2 class="fs-2 font-heading mb-1">Before &amp; After Showcase</h2>
+        <p class="text-muted small mb-0">Witness the quiet magic that occurs when paused ideas find their second home.</p>
+      </div>
+      <div class="mt-3 mt-md-0">
+        <a {% if current_user %}href="{{ url_for('gallery') }}"{% else %}href="{{ url_for('login', next=url_for('gallery')) }}"{% endif %} class="btn btn-outline-warm">
+          Full Transformation Gallery <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Comparison Cards -->
+    <div class="row g-4">
+      {% for item in showcase_gallery %}
+        <div class="col-lg-4 col-md-6 reveal-on-scroll">
+          <div class="stat-editorial-card h-100 d-flex flex-column text-start p-4">
+            
+            <div class="ba-slider-container mb-3" style="height: 240px;">
+              <img src="{{ item.before_image }}" alt="Before" class="ba-slider-before">
+              <img src="{{ item.after_image }}" alt="After" class="ba-slider-after">
+              <div class="ba-slider-handle"></div>
+              <span class="ba-badge ba-badge-before" style="left: 10px; bottom: 10px; z-index: 4;">Original</span>
+              <span class="ba-badge ba-badge-after" style="right: 10px; bottom: 10px; left: auto; z-index: 4;">Completed</span>
+            </div>
+
+            <span class="badge bg-light text-dark border align-self-start mb-2 small">{{ item.category }}</span>
+            <h4 class="fs-5 font-heading mb-2 text-deep-olive">{{ item.title }}</h4>
+            <p class="small text-muted mb-3 flex-grow-1" style="line-height: 1.6;">
+              {{ item.transformation_story or item.short_description }}
+            </p>
+
+            <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+              <span class="small text-muted">Rescued by {{ item.rescuer.full_name if item.rescuer else 'Community Maker' }}</span>
+              <a {% if current_user %}href="{{ url_for('project_detail', project_id=item.id) }}"{% else %}href="{{ url_for('login', next=url_for('project_detail', project_id=item.id)) }}"{% endif %} class="small fw-semibold text-terracotta">
+                Read Story &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================== -->
+<!-- 7. PROJECT STORIES                             -->
+<!-- ============================================== -->
+{% if featured_story %}
+<section class="py-5">
+  <div class="container py-4">
+    <div class="row align-items-center g-5 reveal-on-scroll">
+      <div class="col-lg-5">
+        <div class="p-3 bg-white rounded-4 shadow-soft">
+          <img src="{{ featured_story.image_url }}" class="img-fluid rounded-3" alt="{{ featured_story.title }}" style="max-height: 420px; width: 100%; object-fit: cover;">
+          <div class="mt-3 d-flex justify-content-between text-muted small px-1">
+            <span>Original: <strong>{{ featured_story.original_creator_name }}</strong></span>
+            <span>Rescued: <strong>{{ featured_story.rescuer_name }}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="scrapbook-card">
+          <span class="badge rounded-pill px-3 py-2 text-uppercase fw-semibold mb-3" style="background-color: var(--color-dusty-peach); color: var(--color-deep-olive);">
+            {{ featured_story.category }}
+          </span>
+          <h2 class="fs-2 font-heading mb-3">{{ featured_story.title }}</h2>
+          <p class="text-muted lead fs-6">
+            {{ featured_story.excerpt }}
+          </p>
+
+          {% if featured_story.quote %}
+            <blockquote class="scrapbook-quote">
+              "{{ featured_story.quote }}"
+            </blockquote>
+          {% endif %}
+
+          <p class="text-muted small">
+            {{ featured_story.full_story[:260] }}...
+          </p>
+
+          <div class="d-flex flex-wrap gap-3 mt-4">
+            <a {% if current_user %}href="{{ url_for('stories') }}"{% else %}href="{{ url_for('login', next=url_for('stories')) }}"{% endif %} class="btn btn-sage">
+              Read Community Stories <i class="bi bi-book ms-1"></i>
+            </a>
+            <a {% if current_user %}href="{{ url_for('create_project') }}"{% else %}href="{{ url_for('login', next=url_for('create_project')) }}"{% endif %} class="btn btn-outline-warm">
+              Share Your Story
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
+<!-- ============================================== -->
+<!-- 8. FINAL CALL TO ACTION                        -->
+<!-- ============================================== -->
+<section class="py-5">
+  <div class="container py-4">
+    <div class="p-5 text-center rounded-4 text-white position-relative overflow-hidden reveal-on-scroll" style="background-color: var(--color-deep-olive); box-shadow: var(--shadow-editorial);">
+      <div class="position-relative z-1 max-w-700 mx-auto">
+        <span class="badge rounded-pill px-3 py-1 mb-3 text-uppercase fw-semibold" style="background-color: var(--color-dusty-peach); color: var(--color-deep-olive);">
+          Join the Circle
+        </span>
+        <h2 class="text-white mb-3 font-heading fs-2">
+          "Your unfinished idea could be someone else's next favourite project."
+        </h2>
+        <p class="text-light opacity-75 mb-4 fs-6">
+          You don't have to carry creative guilt. Someone in our community is ready to treat your unfinished idea with the gentleness and passion it deserves.
+        </p>
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+          <a {% if current_user %}href="{{ url_for('explore') }}"{% else %}href="{{ url_for('login', next=url_for('explore')) }}"{% endif %} class="btn btn-sage btn-lg px-4 fs-6">
+            <i class="bi bi-compass me-1"></i> Start Exploring
+          </a>
+          <a {% if current_user %}href="{{ url_for('create_project') }}"{% else %}href="{{ url_for('login', next=url_for('create_project')) }}"{% endif %} class="btn btn-terracotta btn-lg px-4 fs-6">
+            <i class="bi bi-box2-heart me-1"></i> Give Your Project a Second Life
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

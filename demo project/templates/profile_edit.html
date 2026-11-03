@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Maker Profile — The Unclaimed Project{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-md-2">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      
+      <div class="form-card">
+        <div class="text-center mb-4">
+          <span class="hero-tagline mb-2">Maker Identity</span>
+          <h1 class="fs-2 mb-1">Edit Your Profile</h1>
+          <p class="text-muted small">Update your bio, craft medium, and how other community makers discover you.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('edit_profile') }}" enctype="multipart/form-data">
+          
+          <div class="row g-4">
+            
+            <!-- Current Avatar preview & Upload -->
+            <div class="col-12 text-center pb-2">
+              <div class="position-relative d-inline-block mb-3">
+                <img id="avatar_preview" src="{{ user.avatar_url or 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' }}" class="rounded-circle border border-3 border-white shadow-sm" width="100" height="100" alt="{{ user.full_name }}" style="object-fit: cover;">
+              </div>
+              <div class="max-w-400 mx-auto">
+                <label for="avatar_file" class="form-label form-label-warm small">Upload New Avatar Photo</label>
+                <input type="file" name="avatar_file" id="avatar_file" class="form-control form-control-warm" accept="image/*" onchange="const f = this.files[0]; if(f){ const r = new FileReader(); r.onload=e=>document.getElementById('avatar_preview').src=e.target.result; r.readAsDataURL(f); }">
+              </div>
+            </div>
+
+            <!-- Full Name -->
+            <div class="col-md-6">
+              <label for="full_name" class="form-label form-label-warm">Full Name</label>
+              <input type="text" class="form-control form-control-warm" id="full_name" name="full_name" value="{{ user.full_name or '' }}" placeholder="Your name">
+            </div>
+
+            <!-- Craft Specialty -->
+            <div class="col-md-6">
+              <label for="craft_specialty" class="form-label form-label-warm">Craft Medium / Specialty</label>
+              <input type="text" class="form-control form-control-warm" id="craft_specialty" name="craft_specialty" value="{{ user.craft_specialty or '' }}" placeholder="e.g. Textiles, Fine Woodworking, Ceramics">
+            </div>
+
+            <!-- Location -->
+            <div class="col-md-6">
+              <label for="location" class="form-label form-label-warm">Location</label>
+              <input type="text" class="form-control form-control-warm" id="location" name="location" value="{{ user.location or '' }}" placeholder="e.g. Portland, OR">
+            </div>
+
+            <!-- Website / Portfolio -->
+            <div class="col-md-6">
+              <label for="website" class="form-label form-label-warm">Website or Social Link</label>
+              <input type="url" class="form-control form-control-warm" id="website" name="website" value="{{ user.website or '' }}" placeholder="https://yourportfolio.com">
+            </div>
+
+            <!-- Bio -->
+            <div class="col-12">
+              <label for="bio" class="form-label form-label-warm">Creative Bio &amp; Philosophy</label>
+              <textarea class="form-control form-control-warm" id="bio" name="bio" rows="4" placeholder="Tell other makers what you love to build, restore, or dream up...">{{ user.bio or '' }}</textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="col-12 mt-4 d-flex gap-3">
+              <button type="submit" class="btn btn-sage flex-grow-1 py-3 justify-content-center">
+                Save Profile Changes
+              </button>
+              <a href="{{ url_for('user_profile', user_id=user.id) }}" class="btn btn-ghost-warm px-4 py-3">
+                Cancel
+              </a>
+            </div>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

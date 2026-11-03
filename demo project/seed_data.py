@@ -1,0 +1,420 @@
+from database import db_session, init_db
+from models import (
+    User, Project, AdoptionRequest, MaterialItem, 
+    ProjectStory, Review, Collaboration, CollaborationRequest,
+    Bookmark, Notification, ProjectUpdate
+)
+
+def seed_database():
+    init_db()
+
+    # Re-seed if no notifications or new models are found
+    if db_session.query(User).count() > 0 and db_session.query(Notification).count() > 0:
+        return
+
+    # Clear existing if upgrading schema
+    if db_session.query(User).count() > 0 and db_session.query(Notification).count() == 0:
+        # Tables were extended
+        pass
+
+    # Ensure tables exist
+    init_db()
+
+    # Check if Maya exists
+    user1 = db_session.query(User).filter(User.username == "maya_textiles").first()
+    if not user1:
+        user1 = User(
+            username="maya_textiles",
+            email="maya@unclaimedproject.org",
+            full_name="Maya Chen",
+            bio="Fiber artist, weaver, and natural dye explorer. Believer in mending what is torn and celebrating visible craft scars.",
+            location="Portland, OR",
+            craft_specialty="Textiles & Embroidery",
+            website="https://mayachen.crafts",
+            avatar_url="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
+        )
+        user1.set_password("password123")
+        db_session.add(user1)
+
+    user2 = db_session.query(User).filter(User.username == "elena_wood").first()
+    if not user2:
+        user2 = User(
+            username="elena_wood",
+            email="elena@unclaimedproject.org",
+            full_name="Elena Rostova",
+            bio="Woodworker specializing in salvaged architectural timber and mid-century joint restoration. Always looking to rescue old mortise-and-tenon pieces.",
+            location="Burlington, VT",
+            craft_specialty="Woodworking & Furniture",
+            website="https://vermonttimber.studio",
+            avatar_url="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80"
+        )
+        user2.set_password("password123")
+        db_session.add(user2)
+
+    user3 = db_session.query(User).filter(User.username == "sam_maker").first()
+    if not user3:
+        user3 = User(
+            username="sam_maker",
+            email="sam@unclaimedproject.org",
+            full_name="Samir Patel",
+            bio="Audio tinkerer, electronics enthusiast, and open-source coder. I build tiny synthesizers and mechanical clickers from forgotten PCB scraps.",
+            location="Austin, TX",
+            craft_specialty="Electronics & Creative Code",
+            website="https://samirhardware.dev",
+            avatar_url="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80"
+        )
+        user3.set_password("password123")
+        db_session.add(user3)
+
+    user4 = db_session.query(User).filter(User.username == "clara_botanical").first()
+    if not user4:
+        user4 = User(
+            username="clara_botanical",
+            email="clara@unclaimedproject.org",
+            full_name="Clara Beauchamp",
+            bio="Botanical illustrator and urban gardener. Documenting forgotten city plants on recycled heavy rag paper.",
+            location="Montreal, Canada",
+            craft_specialty="Illustration & Ceramics",
+            website="https://clarabotanica.art",
+            avatar_url="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80"
+        )
+        user4.set_password("password123")
+        db_session.add(user4)
+
+    db_session.commit()
+
+    # Seed Projects with full PROJECT DNA
+    if db_session.query(Project).count() == 0:
+        p1 = Project(
+            title="Botanical Embroidered Vintage Denim Chore Coat",
+            short_description="An oversized 1980s workwear jacket half-adorned with delicate alpine flora and mushroom motifs.",
+            full_description="I started this piece during a quiet winter residency in Maine. The jacket is vintage heavy cotton denim in a soft faded indigo. Over 40 hours went into the left chest and sleeve embroidery (mostly French knots, satin stitch ferns, and morel mushrooms). Life got busy after moving studios and I haven't picked up a hoop in 8 months. It deserves someone who loves slow-stitching.",
+            why_abandoned="Lost momentum during an interstate studio move; my creative focus shifted towards loom weaving.",
+            what_is_needed="A patient embroiderer or textile artist to fill the back yoke and right cuff with complimentary flora.",
+            category="Fashion & DIY",
+            completion_percentage=45,
+            status="Available for Adoption",
+            preferred_transfer_type="Adopt my project",
+            skills_required="French knots, satin stitch, botanical illustration pattern transfer",
+            original_idea="Turn an authentic vintage utility chore jacket into a walking field herbarium with wild edible plants.",
+            work_completed_details="Front left breast pocket with chanterelle cluster, entire left cuff with alpine ferns and wild mosses (40+ hours of hand-embroidery).",
+            remaining_work_details="Upper shoulder back yoke (sketched in water-soluble ink) and right sleeve cuffs need threading.",
+            creator_message="Please don't rush this piece. Each stitch was placed with love and warm tea on snowy afternoons.",
+            primary_image="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=900&q=80",
+            before_image="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=900&q=80",
+            materials_included="Vintage chore jacket (Size L), wooden 8-inch hoop, 14 skeins of French cotton stranded floss, Japanese embroidery needles.",
+            location="Portland, OR",
+            estimated_time_to_finish="15 - 20 hours",
+            creator_id=user1.id,
+            views_count=342,
+            likes_count=58
+        )
+
+        p2 = Project(
+            title="Live-Edge Black Walnut Coffee Table",
+            short_description="Hand-flattened walnut slab with butterfly dovetail keys pre-cut. Needs sanding, oiling, and leg installation.",
+            full_description="Rescued this fallen Pennsylvania black walnut slab three years ago. I air-dried it, planed the top flat by hand, and cut three decorative maple bowties to stabilize a natural drying split. It's an extraordinary piece of wood with curly grain figure, but my new apartment doesn't have workshop space.",
+            why_abandoned="Downsized to an apartment without workshop or dust ventilation.",
+            what_is_needed="Final orbital sanding (120 to 320 grit), hard-wax oil finish (like Rubio or Odie's), and choosing/attaching legs.",
+            category="Handmade & Crafts",
+            completion_percentage=70,
+            status="Available for Adoption",
+            preferred_transfer_type="Adopt my project",
+            skills_required="Random orbital sanding, grain popping, hand-applied hard-wax oil",
+            original_idea="A minimalist coffee table that celebrates the organic natural split of old Pennsylvania hardwood.",
+            work_completed_details="Hand-planed dead flat with a No. 7 jointer plane. Mortised and fitted 3 curly maple butterfly keys.",
+            remaining_work_details="Progressive sanding from 120 through 320 grit, applying two coats of hard-wax oil, and drilling pilot holes for hairpin legs.",
+            creator_message="This timber took over 90 years to grow. Please treat the edges with reverence.",
+            primary_image="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=900&q=80",
+            materials_included="42x22 inch walnut slab, 3 maple butterfly keys (already fitted), 4 matte black hairpin legs with mounting screws.",
+            location="Burlington, VT",
+            estimated_time_to_finish="6 - 8 hours",
+            creator_id=user2.id,
+            views_count=485,
+            likes_count=79
+        )
+
+        p3 = Project(
+            title="Open-Hardware Lo-Fi Ambient Synthesizer",
+            short_description="A dual-oscillator drone generator built around a Raspberry Pi RP2040 and tactile wooden potentiometers.",
+            full_description="I designed custom PCBs and soldered 80% of the audio circuitry, low-pass ladder filter, and rotary encoders. The custom lasercut cherry wood chassis is assembled. It produces hauntingly beautiful ambient chords, but the digital modulation code and remaining 4 jack sockets still need final soldering and debugging.",
+            why_abandoned="Ran out of weekends while starting a demanding software engineering job.",
+            what_is_needed="A maker with basic soldering skills and an interest in MicroPython or C++ audio synthesis to finish the firmware.",
+            category="Programming & Technology",
+            completion_percentage=65,
+            status="In Collaboration",
+            preferred_transfer_type="Collaborate with me",
+            skills_required="Through-hole soldering, MicroPython / C++ audio DSP algorithms",
+            original_idea="A portable battery-powered synthesizer that sounds like an old tape machine left in the sun.",
+            work_completed_details="Schematics, custom PCB etching, assembly of cherry wood cabinet, core analog oscillator circuit soldered and tested.",
+            remaining_work_details="Solder remaining 4 quarter-inch jack sockets and implement the LFO modulation sweep in MicroPython firmware.",
+            creator_message="Let's build something dreamers will write music on. Happy to collaborate remotely!",
+            primary_image="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=900&q=80",
+            materials_included="Custom assembled PCB, Raspberry Pi Pico, laser-cut cherry casing, full wiring schematic, OLED display module.",
+            location="Austin, TX",
+            estimated_time_to_finish="10 hours",
+            creator_id=user3.id,
+            views_count=590,
+            likes_count=104
+        )
+
+        p4 = Project(
+            title="1974 Olympus 35 RC Mechanical Camera Restoration",
+            short_description="Classic compact rangefinder camera disassembled for shutter blade degreasing and velvet light seal replacement.",
+            full_description="This gorgeous mechanical jewel had sticky shutter blades at speeds under 1/30s. I carefully disassembled the front lens element assembly and safely cleaned the aperture iris. All tiny screws and optical elements are categorized in numbered jewelers' trays. Just needs the new shutter return spring seated and fresh velvet foam installed.",
+            why_abandoned="My eyesight was struggling with 0.8mm watchmaker screws after an eye procedure.",
+            what_is_needed="A delicate hand with tweezers, precision screwdrivers, and patience to reassemble the lens barrel.",
+            category="Photography",
+            completion_percentage=50,
+            status="Available for Adoption",
+            preferred_transfer_type="Adopt my project",
+            skills_required="Precision camera assembly, optical lens cleaning, light seal cutting",
+            original_idea="Restore a classic 1970s street photography camera to pristine shooting condition.",
+            work_completed_details="Ultrasonic cleaning of aperture blades, old gooey foam scraped and chassis cleaned with isopropanol.",
+            remaining_work_details="Re-installing the shutter timing wheel, seating the rangefinder prism mirror, gluing replacement velvet strips.",
+            creator_message="Keep the tiny labeled pillboxes in order — every single screw has a specific partner hole.",
+            primary_image="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=900&q=80",
+            materials_included="Camera body, lens elements in velvet pouch, Japanese precision screwdrivers, new laser-cut neoprene seal kit, service manual printout.",
+            location="Chicago, IL",
+            estimated_time_to_finish="4 - 5 hours",
+            creator_id=user3.id,
+            views_count=390,
+            likes_count=64
+        )
+
+        p5 = Project(
+            title="Botanical Watercolors of Urban Lichens & Mosses",
+            short_description="A series of 12 planned scientific botanical plates on handmade cotton rag paper; 5 completed with micro-notes.",
+            full_description="An illustrated study of resilient lichens growing on historic stone walls across Old Montreal. Five plates are fully rendered in wet-on-dry Winsor & Newton artist-grade watercolours. The pencil underdrawings for the remaining seven plates are cleanly laid out with specimen coordinates and microscope notes.",
+            why_abandoned="Began an intensive master's thesis and had to pause side studio projects.",
+            what_is_needed="A fellow watercolourist or naturalist illustrator who appreciates muted forest greens and ochres to paint the remaining 7 studies.",
+            category="Art & Painting",
+            completion_percentage=55,
+            status="Available for Adoption",
+            preferred_transfer_type="Adopt my project",
+            skills_required="Watercolour glazing, botanical scientific illustration, fine liner calligraphy",
+            original_idea="Create a high-resolution open educational herbarium folio documenting urban micro-botany.",
+            work_completed_details="5 completed museum-grade plates, graphite pencil outlines and color swatches prepared for plates 6-12.",
+            remaining_work_details="Applying translucent green and ochre washes to the remaining 7 Arches paper plates.",
+            creator_message="The specimens are resilient city dwellers. May they bring quiet wonder to your brushes.",
+            primary_image="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=900&q=80",
+            materials_included="7 pre-drawn 300gsm Arches cold-press cotton sheets, field notes booklet, dried herbarium specimen samples.",
+            location="Montreal, Canada",
+            estimated_time_to_finish="18 hours",
+            creator_id=user4.id,
+            views_count=280,
+            likes_count=49
+        )
+
+        p6 = Project(
+            title="Modular Cedar Balcony Cold-Frame Greenhouse",
+            short_description="A compact 3-tier cedar seed nursery with polycarbonate fluted panels and brass hinges.",
+            full_description="Designed for apartment balconies or small patios. All cedar components are cut, planed, and pre-drilled with pocket-holes. The two lower shelves and frame are assembled. What remains is assembling the hinged roof sash and installing the twin-wall polycarbonate sheets.",
+            why_abandoned="Relocated unexpectedly to an apartment without an outdoor balcony.",
+            what_is_needed="Simple cordless drill assembly of the hinged top lid, installing the weather-stripping, and glass/panel sealing.",
+            category="Gardening",
+            completion_percentage=75,
+            status="Available for Adoption",
+            preferred_transfer_type="Adopt my project",
+            skills_required="Basic cordless screw driving, measuring weatherstripping, acrylic silicone sealing",
+            original_idea="An insulated, handsome balcony micro-greenhouse to start heirloom tomato seedlings in early spring.",
+            work_completed_details="Frame joined with waterproof exterior Titebond III glue and pocket screws; cedar sanded to 150 grit.",
+            remaining_work_details="Screw on top lid frame, attach the two brass support stays, slide in polycarbonate panels.",
+            creator_message="Western Red Cedar smells wonderful when wet. Ready to nurture baby greens!",
+            primary_image="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=900&q=80",
+            materials_included="Pre-cut Western Red Cedar framing, UV-resistant polycarbonate panels, brass hardware pack, assembly diagram.",
+            location="Seattle, WA",
+            estimated_time_to_finish="3 - 4 hours",
+            creator_id=user2.id,
+            views_count=355,
+            likes_count=72
+        )
+
+        # Completed Projects for Before & After Gallery
+        p7_completed = Project(
+            title="Mid-Century Oak Card Catalog Cabinet",
+            short_description="A 16-drawer abandoned public library filing cabinet brought back from water-damaged oak boards to a warm tea storage console.",
+            full_description="Rescued from an elementary school basement renovation. Four drawers had rotted bottoms and the original varnish was yellowed and cracked. Clara adopted it through Unclaimed Project and collaborated with Elena for timber replacement.",
+            why_abandoned="Destined for a dumpster after water leak in archive basement.",
+            what_is_needed="Completed project! Showcasing what is possible when minds connect.",
+            category="Handmade & Crafts",
+            completion_percentage=100,
+            status="Rescued / Completed",
+            preferred_transfer_type="Adopt my project",
+            skills_required="Cabinetry, wood scraping, brass polishing",
+            original_idea="Save an architectural piece of library history from being destroyed in a renovation dumpster.",
+            work_completed_details="Replaced 4 bottom plywood slides, hand-scraped yellowed varnish, rubbed with boiled linseed oil and beeswax.",
+            remaining_work_details="Project successfully completed and preserved.",
+            creator_message="Now living a second life as our community seed library repository.",
+            primary_image="https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=900&q=80",
+            before_image="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80",
+            after_image="https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=900&q=80",
+            transformation_story="Elena planed replacement red oak drawer slides while Clara cleaned all 16 original brass label pulls with vinegar and flour paste. Now serves as the centerpiece of a neighborhood community seed library.",
+            creator_id=user2.id,
+            rescuer_id=user4.id,
+            views_count=980,
+            likes_count=214
+        )
+
+        p8_completed = Project(
+            title="Heirloom Patchwork Starlight Quilt",
+            short_description="A 40-year-old collection of floral feed-sack blocks found in an attic suitcase, finished with hand-quilted sashiko stars.",
+            full_description="Started in 1984 by a grandmother in rural Maine, these 24 hand-pieced kaleidoscope blocks lay untouched in tissue paper for nearly four decades. Maya adopted the bundle and spent three months piecing the borders with natural dyed unbleached linen.",
+            why_abandoned="Original maker passed away before the blocks could be joined.",
+            what_is_needed="Completed project! Fully documented in our community archives.",
+            category="Fashion & DIY",
+            completion_percentage=100,
+            status="Rescued / Completed",
+            preferred_transfer_type="Adopt my project",
+            skills_required="Hand piecing, sashiko quilting, natural indigo dyeing",
+            original_idea="Bring a grandmother's unfinished quilt blocks from the 1980s into a contemporary heirloom blanket.",
+            work_completed_details="All 24 feed-sack star blocks stabilized with archival batiste, joined with natural dyed linen sash strips.",
+            remaining_work_details="Completed and gifted to a community newborn nursery.",
+            creator_message="Honoring hands that started a pattern forty years before our own.",
+            primary_image="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=900&q=80",
+            before_image="https://images.unsplash.com/photo-1528458909336-e7a0adfed0a5?auto=format&fit=crop&w=900&q=80",
+            after_image="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=900&q=80",
+            transformation_story="Each block was gently soaked in lukewarm orvus paste. Maya quilted geometric star constellations over the seams. The quilt now warms a cozy reading room in Portland.",
+            creator_id=user1.id,
+            rescuer_id=user1.id,
+            views_count=820,
+            likes_count=178
+        )
+
+        db_session.add_all([p1, p2, p3, p4, p5, p6, p7_completed, p8_completed])
+        db_session.commit()
+
+    # Materials
+    if db_session.query(MaterialItem).count() == 0:
+        m1 = MaterialItem(
+            title="Spool of Undyed Belgian Flax Linen Yarn (800m)",
+            description="Leftover cone from a weaving warp. 100% long-staple organic flax, perfect for tablet weaving, lace knitting, or bookbinding cord.",
+            category="Textiles & Fabric",
+            quantity="1 large cone (approx. 450 grams)",
+            condition="Like New",
+            location="Portland, OR",
+            image_url="https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=600&q=80",
+            donor_id=user1.id
+        )
+
+        m2 = MaterialItem(
+            title="Off-cut Hardwood Blocks: Black Walnut & White Oak",
+            description="Clean, kiln-dried offcuts between 6 and 14 inches long. Perfect for woodturners making spinning tops, knife handles, or carving spoons.",
+            category="Wood & Timber",
+            quantity="Approx. 12 board feet in apple crate",
+            condition="Gently Used",
+            location="Burlington, VT",
+            image_url="https://images.unsplash.com/photo-1546484396-fb3fc6f95f98?auto=format&fit=crop&w=600&q=80",
+            donor_id=user2.id
+        )
+
+        m3 = MaterialItem(
+            title="Vintage Brass Drawer Cup Pulls (Set of 8)",
+            description="Original stamped solid brass drawer pulls from an 1890s apothecary cabinet. Gorgeous aged verdigris patina, screw holes intact.",
+            category="Hardware & Tools",
+            quantity="8 matching handles + mounting bolts",
+            condition="Vintage / Salvaged",
+            location="Chicago, IL",
+            image_url="https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=600&q=80",
+            donor_id=user2.id
+        )
+
+        m4 = MaterialItem(
+            title="Ceramic Glaze Test Batches & Underglazes",
+            description="Ten 4oz jars of cone 6 stoneware brush-on glazes (speckled matte white, celadon green, iron luster) left over from a pottery studio run.",
+            category="Ceramics & Clay",
+            quantity="10 jars (all > 75% full)",
+            condition="Like New",
+            location="Montreal, Canada",
+            image_url="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=600&q=80",
+            donor_id=user4.id
+        )
+
+        m5 = MaterialItem(
+            title="Assorted Arduino Sensors & Through-Hole Resistors",
+            description="Tackle box full of rotary encoders, light-dependent resistors, piezos, breadboards, and jumpers from completed hardware workshops.",
+            category="Electronics",
+            quantity="1 divided organizer case (over 200 components)",
+            condition="Like New",
+            location="Austin, TX",
+            image_url="https://images.unsplash.com/photo-1517055729445-fa7d27394b48?auto=format&fit=crop&w=600&q=80",
+            donor_id=user3.id
+        )
+        db_session.add_all([m1, m2, m3, m4, m5])
+        db_session.commit()
+
+    # Stories
+    if db_session.query(ProjectStory).count() == 0:
+        s1 = ProjectStory(
+            title="The Solitary Weave: How a Half-Dressed Swedish Loom Found Its Voice in Vermont",
+            excerpt="When 84-year-old Martha could no longer reach the treadles of her floor loom, three yards of spun wool stood frozen in time. That is until a graduate textile student knocked on her door.",
+            full_story="For nearly four decades, Martha had woven blankets for every baby born along the Winooski River. In 2024, osteoarthritis finally made the rhythmic foot-shuttling too painful. The warp had hung in her sunroom for almost two winters, gathering dust and silent questions. When Martha's granddaughter posted the loom on The Unclaimed Project, Elena connected Martha with Sophie, a junior spinner at the local college. Over four Sunday afternoons, Martha sat in her wicker rocking chair with tea, reciting the traditional Swedish twill patterns while Sophie's younger hands threw the shuttle. The resulting blanket now hangs at the community center, woven by two pairs of hands separated by half a century.",
+            original_creator_name="Martha & Daughter",
+            rescuer_name="Sophie K.",
+            category="Textiles & Heritage",
+            image_url="https://images.unsplash.com/photo-1528458909336-e7a0adfed0a5?auto=format&fit=crop&w=900&q=80",
+            quote="A craft only dies when nobody is left to share the mistakes and tell the stories behind the knots.",
+            likes_count=142
+        )
+
+        s2 = ProjectStory(
+            title="Resurrecting the Pocket Symphony: From a Breadboard Mess to an Indie Stage",
+            excerpt="An engineer's prototype synthesizer was left on a high shelf when twin babies arrived. Two years later, a sound designer revived the code and recorded an entire EP with it.",
+            full_story="Samir had sketched the circuits for a miniature dual-oscillator noise synth on late nights before life stepped in. The project was boxed away inside a shoebox labeled 'Someday'. Through The Unclaimed Project, he handed the breadboard and loose pots to Liam, an ambient electronic producer. Liam didn't just solder the remaining connections—he kept Samir's original hand-soldered copper bridge mistakes because they introduced a warm, drifting frequency flutter that made the device unique. Two weeks ago, Liam released 'Shelved Songs', crediting Samir as co-creator on the vinyl sleeve.",
+            original_creator_name="Samir Patel",
+            rescuer_name="Liam Gallagher",
+            category="Hardware & Music",
+            image_url="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=900&q=80",
+            quote="The imperfections in someone else's abandoned work are often where the soul actually begins.",
+            likes_count=108
+        )
+        db_session.add_all([s1, s2])
+        db_session.commit()
+
+    # Progress Updates
+    p1 = db_session.query(Project).filter(Project.title.like("%Denim%")).first()
+    if p1 and db_session.query(ProjectUpdate).count() == 0:
+        u1 = ProjectUpdate(
+            project_id=p1.id,
+            author_id=user1.id,
+            title="Pre-washed and catalogued the vintage floss skeins",
+            content="Gently washed the jacket with wool soap and sorted the 14 skeins of French floss into small labeled glassine envelopes so they don't tangle.",
+            image_url="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=600&q=80"
+        )
+        db_session.add(u1)
+
+    # Bookmarks
+    if p1 and db_session.query(Bookmark).count() == 0:
+        bm = Bookmark(user_id=user2.id, project_id=p1.id)
+        db_session.add(bm)
+
+    # Notifications
+    if db_session.query(Notification).count() == 0:
+        n1 = Notification(
+            user_id=user1.id,
+            title="New Adoption Proposal",
+            message="Clara Beauchamp sent an adoption proposal for your 'Botanical Embroidered Vintage Denim Chore Coat'.",
+            link="/adoptions",
+            notification_type="adoption_request"
+        )
+        n2 = Notification(
+            user_id=user2.id,
+            title="Project Bookmarked",
+            message="Your Live-Edge Black Walnut Coffee Table was saved to 3 makers' studio scrapbooks.",
+            link="/dashboard",
+            notification_type="general"
+        )
+        n3 = Notification(
+            user_id=user3.id,
+            title="New Collaboration Inquiry",
+            message="A community developer offered to assist with MicroPython firmware on the Lo-Fi Synth.",
+            link="/collaborations",
+            notification_type="collaboration"
+        )
+        db_session.add_all([n1, n2, n3])
+
+    db_session.commit()
+
+if __name__ == '__main__':
+    seed_database()
+    print("Database seeded with extended models and Project DNA.")

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account — The Unclaimed Project{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-md-3">
+  
+  <div class="auth-split-layout">
+    
+    <!-- Left Hero/Visual Side -->
+    <div class="auth-hero-side">
+      <div>
+        <a href="{{ url_for('index') }}" class="text-white text-decoration-none d-flex align-items-center gap-2 mb-4">
+          <span class="brand-icon" style="background-color: var(--color-sage-green); color: #212C1E;">🌱</span>
+          <span class="font-heading fs-4 fw-bold text-white">The Unclaimed Project</span>
+        </a>
+        <span class="hero-tagline mb-3" style="background-color: rgba(235, 200, 181, 0.25); color: #FAF8F5; border-color: rgba(255,255,255,0.2);">
+          Join The Circle
+        </span>
+        <h2 class="font-heading fs-2 text-white mt-3 mb-3" style="line-height: 1.25;">
+          "Every stitch, every cut board carried someone's hope."
+        </h2>
+        <p class="text-light opacity-75 small" style="line-height: 1.7; max-width: 420px;">
+          Create your maker profile to adopt abandoned projects, share surplus materials, and connect with artisans who appreciate the beauty of unfinished things.
+        </p>
+      </div>
+
+      <div class="pt-4 border-top border-white border-opacity-10 d-flex align-items-center gap-3">
+        <span class="small text-light opacity-75">100% Free &bull; Non-commercial &bull; Respectful Maker Community</span>
+      </div>
+    </div>
+
+    <!-- Right Form Side -->
+    <div class="auth-form-side">
+      <div class="mb-4">
+        <span class="caption-label d-block mb-1 text-terracotta">Community Registration</span>
+        <h2 class="fs-2 font-heading mb-1 text-deep-olive">Join The Unclaimed Project</h2>
+        <p class="text-muted small">Begin rehoming and reviving paused creative dreams.</p>
+      </div>
+
+      <form method="POST" action="{{ url_for('register') }}">
+        
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="full_name" class="form-label form-label-warm">Full Name *</label>
+            <input type="text" class="form-control form-control-warm" id="full_name" name="full_name" placeholder="e.g. Clara Beauchamp" required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="username" class="form-label form-label-warm">Username *</label>
+            <input type="text" class="form-control form-control-warm" id="username" name="username" placeholder="e.g. clara_botanical" required>
+          </div>
+
+          <div class="col-12">
+            <label for="email" class="form-label form-label-warm">Email Address *</label>
+            <input type="email" class="form-control form-control-warm" id="email" name="email" placeholder="name@domain.com" required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="reg_password" class="form-label form-label-warm">Password *</label>
+            <div class="password-input-group">
+              <input type="password" class="form-control form-control-warm pe-5" id="reg_password" name="password" placeholder="Create a password" required>
+              <button type="button" class="password-toggle-btn" data-target-input="reg_password">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="confirm_password" class="form-label form-label-warm">Confirm Password *</label>
+            <div class="password-input-group">
+              <input type="password" class="form-control form-control-warm pe-5" id="confirm_password" name="confirm_password" placeholder="Repeat password" required>
+              <button type="button" class="password-toggle-btn" data-target-input="confirm_password">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="craft_specialty" class="form-label form-label-warm">Your Craft / Medium</label>
+            <input type="text" class="form-control form-control-warm" id="craft_specialty" name="craft_specialty" placeholder="e.g. Ceramics, Fiber, Wood, Code">
+          </div>
+
+          <div class="col-md-6">
+            <label for="location" class="form-label form-label-warm">Location</label>
+            <input type="text" class="form-control form-control-warm" id="location" name="location" placeholder="e.g. Portland, OR">
+          </div>
+
+          <div class="col-12">
+            <label for="bio" class="form-label form-label-warm">Short Creative Bio</label>
+            <textarea class="form-control form-control-warm" id="bio" name="bio" rows="2" placeholder="Tell other makers what you love to build or restore..."></textarea>
+          </div>
+
+          <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-sage w-100 py-3 justify-content-center fs-6 fw-bold">
+              Create My Maker Account
+            </button>
+          </div>
+        </div>
+
+      </form>
+
+      <div class="text-center mt-4 pt-2">
+        <p class="small text-muted mb-0">
+          Already have an account? 
+          <a href="{{ url_for('login') }}" class="fw-bold text-terracotta">Sign in here</a>
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

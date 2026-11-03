@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In — The Unclaimed Project{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-md-3">
+  
+  <div class="auth-split-layout">
+    
+    <!-- Left Hero/Visual Side -->
+    <div class="auth-hero-side">
+      <div>
+        <a href="{{ url_for('index') }}" class="text-white text-decoration-none d-flex align-items-center gap-2 mb-4">
+          <span class="brand-icon" style="background-color: var(--color-sage-green); color: #212C1E;">🌱</span>
+          <span class="font-heading fs-4 fw-bold text-white">The Unclaimed Project</span>
+        </a>
+        <span class="hero-tagline mb-3" style="background-color: rgba(235, 200, 181, 0.25); color: #FAF8F5; border-color: rgba(255,255,255,0.2);">
+          Artisan Community
+        </span>
+        <h2 class="font-heading fs-2 text-white mt-3 mb-3" style="line-height: 1.25;">
+          "Not every unfinished thing is a forgotten thing."
+        </h2>
+        <p class="text-light opacity-75 small" style="line-height: 1.7; max-width: 420px;">
+          Return to your studio. Connect with kindred makers, review adoption proposals, and help stalled ideas find fresh momentum.
+        </p>
+      </div>
+
+      <div class="pt-4 border-top border-white border-opacity-10 d-flex align-items-center gap-3">
+        <div class="d-flex -space-x-2">
+          <img class="rounded-circle border border-2 border-white" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=60&q=80" width="34" height="34" alt="Maker">
+          <img class="rounded-circle border border-2 border-white" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=60&q=80" width="34" height="34" alt="Maker" style="margin-left: -10px;">
+          <img class="rounded-circle border border-2 border-white" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=60&q=80" width="34" height="34" alt="Maker" style="margin-left: -10px;">
+        </div>
+        <span class="small text-light opacity-75">500+ makers collaborating across crafts.</span>
+      </div>
+    </div>
+
+    <!-- Right Form Side -->
+    <div class="auth-form-side">
+      <div class="mb-4">
+        <span class="caption-label d-block mb-1 text-terracotta">Member Access</span>
+        <h2 class="fs-2 font-heading mb-1 text-deep-olive">Sign In to Your Studio</h2>
+        <p class="text-muted small">Enter your email or username to access your projects and adoptions.</p>
+      </div>
+
+      <form method="POST" action="{{ url_for('login', next=request.args.get('next')) }}">
+        
+        <div class="mb-3">
+          <label for="login_identifier" class="form-label form-label-warm">Email or Username *</label>
+          <input type="text" class="form-control form-control-warm" id="login_identifier" name="login_identifier" placeholder="e.g. maya_textiles or your@email.com" required>
+        </div>
+
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label for="login_password" class="form-label form-label-warm mb-0">Password *</label>
+            <a href="#" class="small text-muted" onclick="alert('For testing, please use any demo account or password123.'); return false;">Forgot password?</a>
+          </div>
+          <div class="password-input-group">
+            <input type="password" class="form-control form-control-warm pe-5" id="login_password" name="password" placeholder="••••••••" required>
+            <button type="button" class="password-toggle-btn" data-target-input="login_password" title="Show or hide password">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="rememberMe" name="remember_me" checked>
+            <label class="form-check-label small text-muted" for="rememberMe">
+              Remember me on this browser
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-sage w-100 py-3 justify-content-center fs-6 fw-bold mb-3">
+          Sign In to The Community
+        </button>
+
+      </form>
+
+      <!-- 1-Click Quick Demo Sign In Helpers -->
+      <div class="mt-3 pt-3 border-top">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="caption-label text-muted">⚡ 1-Click Demo Testing</span>
+          <span class="small text-muted handwritten">Click any maker:</span>
+        </div>
+        <div class="row g-2">
+          {% for demo in demo_users %}
+            <div class="col-6">
+              <a href="{{ url_for('demo_login', username=demo.username) }}" class="btn btn-sm btn-ghost-warm w-100 text-start py-2 px-3 d-flex align-items-center gap-2">
+                <img src="{{ demo.avatar_url }}" width="22" height="22" class="rounded-circle" alt="{{ demo.username }}">
+                <span class="small fw-semibold text-truncate">{{ demo.full_name }}</span>
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="text-center mt-4 pt-2">
+        <p class="small text-muted mb-0">
+          New to The Unclaimed Project? 
+          <a href="{{ url_for('register') }}" class="fw-bold text-terracotta">Create an account</a>
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

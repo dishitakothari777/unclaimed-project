@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Adoption Requests — The Unclaimed Project{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  
+  <div class="max-w-700 mx-auto text-center mb-5">
+    <span class="hero-tagline">Kind Stewardship</span>
+    <h1 class="fs-2 mb-2">Adoption Requests &amp; Proposals</h1>
+    <p class="text-muted">
+      Review proposals sent for your projects, and track or cancel requests you've submitted to adopt others' ideas.
+    </p>
+  </div>
+
+  <div class="row g-5">
+    
+    <!-- Inbound Requests (Requests received for your projects) -->
+    <div class="col-lg-6">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <h3 class="fs-4 mb-0">
+          <i class="bi bi-inbox me-2 text-terracotta"></i> Received Proposals ({{ inbound_requests|length }})
+        </h3>
+      </div>
+
+      {% if inbound_requests %}
+        <div class="d-flex flex-column gap-3">
+          {% for req in inbound_requests %}
+            <div class="card p-4 rounded-4 border shadow-sm bg-white">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="d-flex align-items-center gap-2">
+                  <img src="{{ req.applicant.avatar_url or 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=80&q=80' }}" class="rounded-circle" width="38" height="38" alt="{{ req.applicant.full_name }}">
+                  <div>
+                    <h6 class="mb-0">{{ req.applicant.full_name or req.applicant.username }}</h6>
+                    <span class="small text-muted">{{ req.applicant.location or 'Community Maker' }}</span>
+                  </div>
+                </div>
+                <span class="badge rounded-pill {% if req.status == 'Approved' %}bg-success{% elif req.status == 'Declined' or req.status == 'Cancelled' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">
+                  {{ req.status }}
+                </span>
+              </div>
+
+              <div class="p-3 rounded-3 bg-light border my-2">
+                <span class="small text-muted d-block mb-1">Applying for:</span>
+                <a href="{{ url_for('project_detail', project_id=req.project.id) }}" class="fw-semibold text-dark text-decoration-none">
+                  {{ req.project.title }} &rarr;
+                </a>
+              </div>
+
+              <p class="small text-muted mb-2 fst-italic">
+                "{{ req.message }}"
+              </p>
+
+              {% if req.plan_to_complete %}
+                <p class="small text-dark mb-3">
+                  <strong>Plan to Finish:</strong> {{ req.plan_to_complete }}
+                </p>
+              {% endif %}
+
+              <!-- Action buttons for owner -->
+              {% if req.status == 'Pending' %}
+                <div class="d-flex gap-2 pt-2 border-top">
+                  <form method="POST" action="{{ url_for('handle_adoption_action', request_id=req.id) }}" class="flex-grow-1">
+                    <input type="hidden" name="action" value="approve">
+                    <button type="submit" class="btn btn-sm btn-sage w-100 justify-content-center">
+                      <i class="bi bi-check-lg"></i> Approve Adoption
+                    </button>
+                  </form>
+                  <form method="POST" action="{{ url_for('handle_adoption_action', request_id=req.id) }}">
+                    <input type="hidden" name="action" value="decline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      Decline
+                    </button>
+                  </form>
+                </div>
+              {% else %}
+                <div class="small text-muted pt-2 border-top">
+                  Decision recorded on {{ req.created_at.strftime('%b %d, %Y') }}.
+                </div>
+              {% endif %}
+
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="card p-4 rounded-4 border text-center bg-white">
+          <i class="bi bi-tray fs-2 text-muted mb-2"></i>
+          <h5 class="fs-6">No inbound proposals</h5>
+          <p class="small text-muted mb-0">When other creators submit proposals to adopt your projects, they will be listed here.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Outbound Requests (Proposals you sent to other makers) -->
+    <div class="col-lg-6">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <h3 class="fs-4 mb-0">
+          <i class="bi bi-send me-2 text-deep-olive"></i> Your Applications ({{ outbound_requests|length }})
+        </h3>
+      </div>
+
+      {% if outbound_requests %}
+        <div class="d-flex flex-column gap-3">
+          {% for req in outbound_requests %}
+            <div class="card p-4 rounded-4 border shadow-sm bg-white">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <a href="{{ url_for('project_detail', project_id=req.project.id) }}" class="fw-semibold text-dark fs-6 text-decoration-none">
+                  {{ req.project.title }}
+                </a>
+                <span class="badge rounded-pill {% if req.status == 'Approved' %}bg-success{% elif req.status == 'Declined' or req.status == 'Cancelled' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">
+                  {{ req.status }}
+                </span>
+              </div>
+
+              <p class="small text-muted mb-2">Original Maker: <strong>{{ req.owner.full_name or req.owner.username }}</strong></p>
+
+              <div class="p-3 rounded-3 bg-light border mb-2">
+                <span class="small text-muted d-block">Your Note:</span>
+                <span class="small text-dark fst-italic">"{{ req.message }}"</span>
+              </div>
+
+              {% if req.status == 'Approved' %}
+                <div class="alert alert-success py-2 small mb-0 mt-2">
+                  <i class="bi bi-check-circle me-1"></i> Approved! The maker has agreed to hand over this project. Connect with them at <strong>{{ req.owner.email }}</strong>.
+                </div>
+              {% elif req.status == 'Pending' %}
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                  <span class="small text-muted">Awaiting maker review...</span>
+                  <form method="POST" action="{{ url_for('cancel_adoption_request', request_id=req.id) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="return confirm('Are you sure you want to cancel this adoption proposal?');">
+                      Cancel Proposal
+                    </button>
+                  </form>
+                </div>
+              {% elif req.status == 'Cancelled' %}
+                <span class="small text-muted">You cancelled this proposal.</span>
+              {% else %}
+                <span class="small text-muted">Proposal was not accepted. Keep exploring other ideas!</span>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="card p-4 rounded-4 border text-center bg-white">
+          <i class="bi bi-compass fs-2 text-muted mb-2"></i>
+          <h5 class="fs-6">No applications sent yet</h5>
+          <p class="small text-muted mb-3">Browse open projects looking for adoption and send your first proposal.</p>
+          <a href="{{ url_for('explore') }}" class="btn btn-sm btn-sage mx-auto">Explore Projects</a>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
