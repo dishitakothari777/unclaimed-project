@@ -11,7 +11,7 @@
       <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-muted">Home</a></li>
       <li class="breadcrumb-item"><a href="{{ url_for('explore') }}" class="text-muted">Explore</a></li>
       <li class="breadcrumb-item"><a href="{{ url_for('explore', category=project.category) }}" class="text-muted">{{ project.category }}</a></li>
-      <li class="breadcrumb-item active text-dark" aria-current="page">{{ project.title[:35] }}...</li>
+      <li class="breadcrumb-item active text-dark" aria-current="page">{{ project.title | truncate(35) }}</li>
     </ol>
   </nav>
 
@@ -87,7 +87,7 @@
           <div>
             <h5 class="fs-6 fw-bold mb-1">1. The Original Idea &amp; Inspiration</h5>
             <p class="small text-muted mb-0">
-              {{ project.original_idea or project.full_description[:220] }}
+              {{ project.original_idea or (project.full_description | truncate(220)) }}
             </p>
           </div>
         </div>
@@ -293,7 +293,7 @@
         <p class="small text-muted mb-3"><i class="bi bi-geo-alt"></i> {{ project.location or project.creator.location or 'Global' }}</p>
 
         {% if project.creator.bio %}
-          <p class="small text-muted mb-4 fst-italic px-2">"{{ project.creator.bio[:130] }}..."</p>
+          <p class="small text-muted mb-4 fst-italic px-2">"{{ project.creator.bio | truncate(130) }}"</p>
         {% endif %}
 
         <!-- Preferred Transfer Option Display -->
@@ -378,7 +378,7 @@
                 <h5 class="fs-6 mb-2">
                   <a href="{{ url_for('project_detail', project_id=r.id) }}">{{ r.title }}</a>
                 </h5>
-                <p class="small text-muted mb-3">{{ r.short_description[:90] }}...</p>
+                <p class="small text-muted mb-3">{{ r.short_description | truncate(90) }}</p>
                 <a href="{{ url_for('project_detail', project_id=r.id) }}" class="btn btn-sm btn-ghost-warm">View Project</a>
               </div>
             </div>

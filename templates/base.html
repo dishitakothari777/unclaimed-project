@@ -187,23 +187,24 @@
 
   <!-- Flash Messages & Toasts -->
   <div class="container mt-3">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category if category != 'danger' else 'danger' }} alert-dismissible fade show alert-warm d-flex align-items-center gap-3 mb-3 shadow-sm" role="alert">
-            {% if category == 'success' %}
-              <i class="bi bi-check-circle-fill text-success fs-5"></i>
-            {% elif category == 'danger' %}
-              <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
-            {% else %}
-              <i class="bi bi-info-circle-fill text-primary fs-5"></i>
-            {% endif %}
-            <div class="flex-grow-1 fw-medium">{{ message }}</div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+    {% set messages = get_flashed_messages(true) %}
+    {% if messages and messages.length > 0 %}
+      {% for item in messages %}
+        {% set category = item[0] %}
+        {% set message = item[1] %}
+        <div class="alert alert-{{ category if category != 'danger' else 'danger' }} alert-dismissible fade show alert-warm d-flex align-items-center gap-3 mb-3 shadow-sm" role="alert">
+          {% if category == 'success' %}
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+          {% elif category == 'danger' %}
+            <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+          {% else %}
+            <i class="bi bi-info-circle-fill text-primary fs-5"></i>
+          {% endif %}
+          <div class="flex-grow-1 fw-medium">{{ message }}</div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
   </div>
 
   <!-- Main Content Block -->
@@ -396,5 +397,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Master Interactive JS -->
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <!-- Firebase Auth Client Integration -->
+  <script src="{{ url_for('static', filename='js/firebase-auth.js') }}"></script>
 </body>
 </html>

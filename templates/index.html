@@ -401,7 +401,7 @@
           {% endif %}
 
           <p class="text-muted small">
-            {{ featured_story.full_story[:260] }}...
+            {{ featured_story.full_story | truncate(260) }}
           </p>
 
           <div class="d-flex flex-wrap gap-3 mt-4">
